@@ -2,7 +2,7 @@ import React from 'react'
 
 const RidePopUp = (props) => {
   return (
-    <div>
+    <div className=''>
         <h5 className='p-1 text-center absolute top-0 text-gray-300 w-[90%] text-4xl'
         onClick={()=>{
           props.setRidePopUpPanel(false)

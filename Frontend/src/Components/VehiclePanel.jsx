@@ -2,7 +2,7 @@ import React from 'react'
 
 const VehiclePanel = (props) => {
   return (
-    <div>
+    <div className=''>
         <h5 className='p-1 text-center absolute top-0 text-gray-300 w-[90%] text-4xl'
         onClick={()=>{
           props.setVehiclePanel(false)
@@ -11,8 +11,8 @@ const VehiclePanel = (props) => {
         <h3 className='text-2xl font-bold p-5'>Choose a vehicle</h3>
         <div 
         onClick={()=>{
-          props.setVehiclePanel(false)
           props.setConfirmRidePanel(true)
+          props.setVehiclePanel(false)
         }}
         className='flex items-center w-full justify-center border-2 active:border-black rounded-xl p-1 my-2'>
           <img className='h-[80px] w-[80px]' src="https://mobile-content.uber.com/launch-experience/ride.png" alt="" />

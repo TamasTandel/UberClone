@@ -8,6 +8,11 @@
   </head>
   <body>
     <div id="root"></div>
+    <script type="module">
+      import structuredClone from 'structured-clone';
+      window.structuredClone = window.structuredClone || structuredClone;
+    </script>
+
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

@@ -10,7 +10,7 @@ const ConfirmRidePopUp = (props) => {
   }
 
   return (
-    <div className=''>
+    <div className='z-50'>
         <h5 className='p-1 text-center top-0 absolute text-gray-300 w-[90%] text-4xl'
         onClick={()=>{
           props.setConfirmRidePopUpPanel(false)

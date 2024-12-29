@@ -2,7 +2,7 @@ import React from 'react'
 
 const ConfirmRide = (props) => {
   return (
-    <div>
+    <div className='z-50'>
         <h5 className='p-1 text-center absolute top-0 text-gray-300 w-[90%] text-4xl'
         onClick={()=>{
           props.setConfirmRidePanel(false)

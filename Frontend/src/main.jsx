@@ -1,13 +1,23 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
-import { BrowserRouter } from 'react-router-dom'
-import UserContext from './context/UserContext.jsx'
-import CaptainContext from './context/CaptainContext.jsx'
+// Import necessary libraries
+import React from 'react';
+import ReactDOM from 'react-dom/client'; // Correct import for React 18
+import structuredClone from 'structured-clone';
 
-createRoot(document.getElementById('root')).render(
-  <StrictMode>
+// Polyfill structuredClone if not available
+if (typeof globalThis.structuredClone === 'undefined') {
+  globalThis.structuredClone = structuredClone;
+}
+
+// Import styles and app components
+import './index.css';
+import App from './App.jsx';
+import { BrowserRouter } from 'react-router-dom';
+import UserContext from './context/UserContext.jsx';
+import CaptainContext from './context/CaptainContext.jsx';
+
+// Render the application
+ReactDOM.createRoot(document.getElementById('root')).render(
+  <React.StrictMode>
     <CaptainContext>
       <UserContext>
         <BrowserRouter>
@@ -15,5 +25,5 @@ createRoot(document.getElementById('root')).render(
         </BrowserRouter>
       </UserContext>
     </CaptainContext>
-  </StrictMode>,
-)
+  </React.StrictMode>
+);

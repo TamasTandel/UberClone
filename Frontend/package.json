@@ -11,12 +11,25 @@
   },
   "dependencies": {
     "@gsap/react": "^2.1.1",
+    "@mapbox/polyline": "^1.2.1",
     "axios": "^1.7.9",
+    "ejs": "^3.1.10",
+    "express": "^4.21.2",
+    "fast-copy": "^3.0.2",
     "gsap": "^3.12.5",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "leaflet": "^1.9.4",
+    "leaflet-gesture-handling": "^1.2.2",
+    "leaflet-routing-machine": "^3.2.12",
+    "openrouteservice": "^0.1.2",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "react-leaflet": "^5.0.0",
     "react-router-dom": "^7.0.2",
-    "remixicon": "^4.5.0"
+    "remixicon": "^4.5.0",
+    "socket.io": "^4.8.1",
+    "socket.io-client": "^4.8.1",
+    "structured-clone": "^0.2.2",
+    "use-position": "^1.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
@@ -31,6 +44,6 @@
     "globals": "^15.12.0",
     "postcss": "^8.4.49",
     "tailwindcss": "^3.4.16",
-    "vite": "^6.0.1"
+    "vite": "^6.0.6"
   }
 }

@@ -2,33 +2,41 @@ const userModel = require('../models/user.model');
 const userService = require('../services/user.service');
 const {validationResult} = require('express-validator');
 const blacklistTokenModel = require('../models/blacklistingToken.model')
+const jwtDecode = require('jwt-decode');
 
-module.exports.registerUser = async (req,res,next)=>{
-
+module.exports.registerUser = async (req, res, next) => {
     const errors = validationResult(req);
-    if(!errors.isEmpty()){
-        return res.status(400).json({errors: errors.array()})
+    if (!errors.isEmpty()) {
+        return res.status(400).json({ errors: errors.array() });
     }
-    const {fullname,email,password} = req.body;
 
-    const isUserAlready = await userModel.findOne({email});
+    const { fullname, email, password } = req.body;
 
-    if(isUserAlready){
-        res.status(400).json({message:'user is already exist'})
+    const isUserAlready = await userModel.findOne({ email });
+    if (isUserAlready) {
+        return res.status(400).json({ message: 'User already exists' });
     }
 
     const hashedPassword = await userModel.hashPassword(password);
-    
+
     const user = await userService.createUser({
-        firstname : fullname.firstname,
-        lastname : fullname.lastname,
+        firstname: fullname.firstname,
+        lastname: fullname.lastname,
         email,
-        password:hashedPassword
+        password: hashedPassword,
     });
+
+    // Generate token
     const token = user.generateAuthToken();
 
-    res.status(201).json({token,user});
-}
+    // Decode the token
+    const decoded = jwtDecode(token);
+    console.log("Decoded Token:", decoded);
+    console.log("Expiration Time:", new Date(decoded.exp * 1000)); // Convert `exp` to readable date
+    console.log("Current Time:", new Date());
+
+    res.status(201).json({ token, user });
+};
 
 module.exports.loginUser = async(req,res,next)=>{
     const errors = validationResult(req);
@@ -50,6 +58,12 @@ module.exports.loginUser = async(req,res,next)=>{
     }
 
     const token = user.generateAuthToken();
+
+    const jwtDecode = require('jwt-decode');
+    const decoded = jwtDecode(token);
+    console.log("Decoded Token:", decoded);
+    console.log("Expiration Time:", new Date(decoded.exp * 1000));
+    console.log("Current Time:", new Date());
 
     res.cookie('token',token);
 

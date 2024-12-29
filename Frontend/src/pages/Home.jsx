@@ -1,146 +1,182 @@
-import React, { useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
-import {useGSAP} from '@gsap/react'
-import gsap from 'gsap';
-import 'remixicon/fonts/remixicon.css'
+import React, { useRef, useState, useEffect } from 'react';
+import { gsap } from 'gsap'; // GSAP import
+import axios from 'axios';
 import LocationSearchPanel from '../Components/LocationSearchPanel';
 import VehiclePanel from '../Components/VehiclePanel';
 import ConfirmRide from '../Components/ConfirmRide';
 import WaitingForDriver from '../Components/WaitingForDriver';
 import LookinngForDriver from '../Components/LookinngForDriver';
+import MapComponent from '../Components/MapComponent';
+
+// Custom Hook for GSAP animations
+const useGSAP = (callback, dependencies) => {
+  useEffect(() => {
+    callback();
+  }, dependencies);
+};
 
 const Home = () => {
+  const [pickup, setPickup] = useState(null);
+  const [destination, setDestination] = useState(null);
+  const [route, setRoute] = useState(null);
+  const [isLocationsSelected, setIsLocationsSelected] = useState(false);
+  const [vehiclePanel, setVehiclePanel] = useState(false);
+  const [confirmRidePanel, setConfirmRidePanel] = useState(false);
+  const [vehicleFound, setVehicleFound] = useState(false);
+  const [waitingForDriver, setWaitingForDriver] = useState(false);
 
-  const [pickup, setPickup] = useState('');
-  const [destination, setDestination] = useState('');
-  const [panelOpen, setPanelOpen] = useState(false)
-  const vehiclePanelRef = useRef(null)
-  const confirmRidePanelRef = useRef(null)
-  const panelRef = useRef(null)
+  const map = useRef(null);
+  const locationPanelRef = useRef(null);
+  const vehiclePanelRef = useRef(null);
   const vehicleFoundRef = useRef(null)
-  const panelCloseRef = useRef(null)
-  const waitingForDriverRef = useRef(null)
-  const [vehiclePanel, setVehiclePanel] = useState(false)
-  const [confirmRidePanel, setConfirmRidePanel] = useState(false)
-  const [vehicleFound, setVehicleFound] = useState(false)
-  const [waitingForDriver, setWaitingForDriver] = useState(false)
+  const confirmRidePanelRef = useRef(null);
+  const vehicleFoundPanelRef = useRef(null); // Ref for Vehicle Found Panel
+  const waitingForDriverRef = useRef(null); // Ref for Waiting for Driver Panel
 
-  const submitHandeler = (e)=>{
-      e.preventDefault()
-  }
+  // Fetch route when pickup and destination are set
+  useEffect(() => {
+    if (pickup && destination) {
+      const fetchRoute = async () => {
+        try {
+          const response = await axios.get(
+            'https://api.openrouteservice.org/v2/directions/driving-car',
+            {
+              headers: { Authorization: '5b3ce3597851110001cf62481c56779035fe43b8ab50db80f7032ba9' },
+              params: {
+                start: `${pickup.lng},${pickup.lat}`,
+                end: `${destination.lng},${destination.lat}`,
+              },
+            }
+          );
+          setRoute(response.data);
+          // setIsLocationsSelected(true);
+          setVehiclePanel(true);
+        } catch (error) {
+          console.error('Error fetching route:', error);
+        }
+      };
+      fetchRoute();
+    }
+  }, [pickup, destination]);
 
-  useGSAP(function(){
-    if (panelOpen) {
-      gsap.to(panelRef.current,{
-        height:'70%',
-      })
-      gsap.to(panelCloseRef.current,{
-        opacity:1
-      })
-    }else{
-      gsap.to(panelRef.current,{
-        height:'0%',
-      })
-      gsap.to(panelCloseRef.current,{
-        opacity:0
-      })
+  // Animate LocationSearchPanel
+  useGSAP(() => {
+    if (isLocationsSelected) {
+      gsap.to(locationPanelRef.current, {
+        translateY: '100%',
+        opacity: 0,
+        duration: 0.5,
+      });
+    } else {
+      gsap.to(locationPanelRef.current, {
+        translateY: '0%',
+        opacity: 1,
+        duration: 0.5,
+      });
     }
-  },[panelOpen])
+  }, [isLocationsSelected]);
 
-  useGSAP(function(){
-    if(vehiclePanel){
-      gsap.to(vehiclePanelRef.current,{
-        transform:'translateY(0)'
-      })}else{
-        gsap.to(vehiclePanelRef.current,{
-          transform:'translateY(100%)'
-        })
+  // Animate VehiclePanel
+  useGSAP(() => {
+    if (vehiclePanel) {
+      gsap.to(vehiclePanelRef.current, {
+        transform: 'translateY(0)',
+        opacity: 1,
+        duration: 0.5,
+      });
+    } else {
+      gsap.to(vehiclePanelRef.current, {
+        transform: 'translateY(100%)',
+        opacity: 0,
+        duration: 0.5,
+      });
     }
-  },[vehiclePanel])
+  }, [vehiclePanel]);
 
-  useGSAP(function(){
-    if(confirmRidePanel){
-      gsap.to(confirmRidePanelRef.current,{
-        transform:'translateY(0)'
-      })}else{
-        gsap.to(confirmRidePanelRef.current,{
-          transform:'translateY(100%)'
-        })
+  // Animate ConfirmRidePanel
+  useGSAP(() => {
+    if (confirmRidePanel) {
+      gsap.to(confirmRidePanelRef.current, {
+        transform: 'translateY(0)',
+        opacity: 1,
+        duration: 0.5,
+      });
+    } else {
+      gsap.to(confirmRidePanelRef.current, {
+        transform: 'translateY(100%)',
+        opacity: 0,
+        duration: 0.5,
+      });
     }
-  }, [confirmRidePanel])
-  
-    useGSAP(function(){
-    if(vehicleFound){
-      gsap.to(vehicleFoundRef.current,{
-        transform:'translateY(0)'
-      })}else{
-      gsap.to(vehicleFoundRef
-        .current, {
-          transform:'translateY(100%)'
-        })
+  }, [confirmRidePanel]);
+
+  // Animate Vehicle Found Panel
+  useGSAP(() => {
+    if (vehicleFound) {
+      gsap.to(vehicleFoundRef.current, {
+        transform: 'translateY(0)',
+        opacity: 1,
+        duration: 0.5,
+      });
+    } else {
+      gsap.to(vehicleFoundRef.current, {
+        transform: 'translateY(100%)',
+        opacity: 0,
+        duration: 0.5,
+      });
     }
-    }, [vehicleFound])
-      
-  useGSAP(function () {
-    if(waitingForDriver){
-      gsap.to(waitingForDriverRef.current,{
-        transform:'translateY(0)'
-      })}else{
+  }, [vehicleFound]);
+
+  // Animate Waiting for Driver Panel
+  useGSAP(() => {
+    if (waitingForDriver) {
       gsap.to(waitingForDriverRef.current, {
-          transform:'translateY(100%)'
-        })
+        transform: 'translateY(0)',
+        opacity: 1,
+        duration: 0.5,
+      });
+    } else {
+      gsap.to(waitingForDriverRef.current, {
+        transform: 'translateY(100%)',
+        opacity: 0,
+        duration: 0.5,
+      });
     }
-  },[waitingForDriver])
+  }, [waitingForDriver]);
+
+  const addMapMarker = (lat, lng, type) => {
+    if (!map.current) return;
+    const marker = L.marker([lat, lng]);
+    const icon = type === 'pickup' ? new L.Icon({ iconUrl: '/pickup-icon.png' }) : new L.Icon({ iconUrl: '/destination-icon.png' });
+    marker.setIcon(icon).addTo(map.current);
+    marker.bindPopup(type === 'pickup' ? 'Pickup Location' : 'Destination Location').openPopup();
+  };
 
   return (
     <div className='h-screen relative overflow-hidden'>
-      <Link to='/'>
-        <img className='w-20 absolute left-2 top-2' src="https://cdn-assets-us.frontify.com/s3/frontify-enterprise-files-us/eyJwYXRoIjoicG9zdG1hdGVzXC9hY2NvdW50c1wvODRcLzQwMDA1MTRcL3Byb2plY3RzXC8yN1wvYXNzZXRzXC9lZFwvNTUwOVwvNmNmOGVmM2YzMjFkMTA3YThmZGVjNjY1NjJlMmVmMzctMTYyMDM3Nzc0OC5haSJ9:postmates:9KZWqmYNXpeGs6pQy4UCsx5EL3qq29lhFS6e4ZVfQrs?width=2400" alt="" />
-      </Link>
-      <div className='h-screen w-[100%] '>   {/* i use w-[100%] and fix screen issue */}
-        <img className='w-[100%] h-full object-cover object-center' src="https://imgs.search.brave.com/dpyAyTY8VcMHt_qOO1NnD7Dn2-vvM3iOMg_4xSkVLLs/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90NC5m/dGNkbi5uZXQvanBn/LzA5LzAzLzk4Lzgx/LzM2MF9GXzkwMzk4/ODE4N19IaHpYdWMx/RWVaa3pRbTljQllN/QTJKbWJiUjU2bnlM/Vy5qcGc" alt="" />
+      <div className="h-[70vh] w-full">
+        <MapComponent
+          route={route}
+          pickup={pickup}
+          destination={destination}
+          setPickup={setPickup}
+          setDestination={setDestination}
+          map={map}
+        />
       </div>
       <div className='flex flex-col justify-end absolute h-screen top-0 w-full'>
-        <div className='bg-white relative h-[30%] p-5'>
-          <h4
-           className='absolute opacity-0 right-6 top-5 text-2xl'
-           ref={panelCloseRef}
-           onClick={()=>{
-            setPanelOpen(false)
-           }}
-          >
-            <i className="ri-arrow-down-wide-line"></i>
-          </h4>
-          <h1 className='text-2xl font-semibold'>Find a trip</h1>
-          <form onSubmit={(e)=>{
-            submitHandeler(e)
-          }}>
-            <div className='line absolute w-1 h-16 top-[29%] bg-gray-600 left-10 rounded-full'></div>
-            <input
-             value={pickup}
-             onClick={()=>{
-              setPanelOpen(true)
-             }}
-             onChange={(e)=>{
-              setPickup(e.target.value)
-             }}
-             className='bg-[#eeee] px-12 py-2 text-lg rounded-lg w-full mt-3' type="text" placeholder='Add a pick-up location'/>
-            <input
-             value={destination}
-             onClick={()=>{
-              setPanelOpen(true)
-             }}
-             onChange={(e)=>{
-              setDestination(e.target.value)
-             }}
-             className='bg-[#eeee] px-12 py-2 text-lg rounded-lg w-full mt-3' type="text" placeholder='Enter Your destination'/>
-          </form>
-        </div>
-        <div ref={panelRef} className=' bg-white h-[0%]'>
-             <LocationSearchPanel setPanelOpen={setPanelOpen} setVehiclePanel={setVehiclePanel}/>
-        </div>
+      <div
+        ref={locationPanelRef}
+        className="absolute bg-white w-full bottom-24 transition-all duration-300"
+      >
+        <LocationSearchPanel
+          setPickup={setPickup}
+          setDestination={setDestination}
+          addMarker={addMapMarker}
+        />
       </div>
-      <div ref={vehiclePanelRef} className='fixed z-10 bottom-0 translate-y-full w-full bg-white p-5'>
+      </div>
+        <div ref={vehiclePanelRef} className='fixed z-20 bottom-0 translate-y-full w-full p-5 bg-white'>
         <VehiclePanel setVehiclePanel={setVehiclePanel} setConfirmRidePanel={setConfirmRidePanel}/>
       </div>
       <div ref={confirmRidePanelRef} className='fixed z-10 bottom-0 translate-y-full w-full bg-white p-5'>
@@ -154,6 +190,6 @@ const Home = () => {
       </div>
     </div>
   )
-}
+};
 
-export default Home
+export default Home;

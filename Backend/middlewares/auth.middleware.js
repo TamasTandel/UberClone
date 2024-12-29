@@ -15,9 +15,11 @@ module.exports.authUser = async (req, res, next) => {
     try {
         // Check if token is blacklisted
         const isBlacklisted = await blackListTokenModel.findOne({ token });
-        if (isBlacklisted) {
-            return res.status(401).json({ message: 'Unauthorized' });
-        }
+if (isBlacklisted) {
+    return res.status(401).json({ message: 'Unauthorized' });
+}
+        
+
 
         // Verify token
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
@@ -67,10 +69,11 @@ module.exports.authCaptain = async (req, res, next) => {
         next();
     } catch (err) {
         if (err.name === 'TokenExpiredError') {
-            return res.status(401).json({ message: 'Token expired' });
+    return res.status(401).json({ message: 'Token expired' });
         } else if (err.name === 'JsonWebTokenError') {
-            return res.status(400).json({ message: 'Invalid token' });
+    return res.status(400).json({ message: 'Invalid token' });
         }
+        
         console.error('AuthCaptain Error:', err);
         res.status(500).json({ message: 'Server error' });
     }

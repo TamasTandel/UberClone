@@ -2,7 +2,7 @@ import React from 'react'
 
 const CaptainDetails = () => {
   return (
-      <div>
+      <div className='z-50'>
         <div className='flex items-center justify-between m-2'>
           <div className='flex items-center justify-start gap-4'>
             <img className='h-10 w-10 object-cover object-center rounded-full' src="https://imgs.search.brave.com/wLR3CQ5qeOMSs4xz8-dH-wyDQRIURTe-qWgHrhRk8sY/rs:fit:860:0:0:0/g:ce/aHR0cHM6Ly90My5m/dGNkbi5uZXQvanBn/LzA2Lzc4LzA5Lzc4/LzM2MF9GXzY3ODA5/Nzg3Nl85a0puRmxS/WUdBZWlic1Z4c3Bx/dENMOVVSOGdpTEF2/Ri5qcGc" alt="" />

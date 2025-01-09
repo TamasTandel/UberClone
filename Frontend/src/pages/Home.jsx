@@ -21,6 +21,9 @@ const Home = () => {
   const [confirmRidePanel, setConfirmRidePanel] = useState(false);
   const [vehicleFound, setVehicleFound] = useState(false);
   const [waitingForDriver, setWaitingForDriver] = useState(false);
+  const [selectedVehicle, setSelectedVehicle] = useState(null);
+  const [selectedVehicleImage, setSelectedVehicleImage] = useState(null);
+  const [vehicleFee, setVehicleFee] = useState(null);
 
   const mapRef = useRef(null);
   const locationPanelRef = useRef(null);
@@ -35,6 +38,10 @@ const Home = () => {
     setPickupLocation(pickup);
     setDestinationLocation(destination);
     setVehiclePanel(true);  
+    gsap.to(locationPanelRef.current, {
+        opacity: 1,
+        duration: 0.5,
+      });
   }
 }, [pickup, destination]);
 
@@ -51,8 +58,6 @@ const Home = () => {
   useEffect(() => {
     if (isLocationsSelected) {
       gsap.to(locationPanelRef.current, {
-        translateY: '100%',
-        opacity: 0,
         duration: 0.5,
       });
     } else {
@@ -73,7 +78,7 @@ const Home = () => {
       });
     } else {
       gsap.to(vehiclePanelRef.current, {
-        transform: 'translateY(100%)',
+        transform: 'translateY(200%)',
         opacity: 0,
         duration: 0.5,
       });
@@ -89,7 +94,7 @@ const Home = () => {
       });
     } else {
       gsap.to(confirmRidePanelRef.current, {
-        transform: 'translateY(100%)',
+        transform: 'translateY(200%)',
         opacity: 0,
         duration: 0.5,
       });
@@ -105,7 +110,8 @@ const Home = () => {
       });
     } else {
       gsap.to(vehicleFoundRef.current, {
-        transform: 'translateY(100%)',
+        transform: 'translateY(200%)',
+        zIndex:'0',
         opacity: 0,
         duration: 0.5,
       });
@@ -121,7 +127,7 @@ const Home = () => {
       });
     } else {
       gsap.to(waitingForDriverRef.current, {
-        transform: 'translateY(100%)',
+        transform: 'translateY(200%)',
         opacity: 0,
         duration: 0.5,
       });
@@ -144,10 +150,10 @@ const Home = () => {
       </div>
 
       {/* Location Panel */}
-      <div className="flex flex-col justify-end absolute h-screen top-0 w-full z-10">
+      <div className="flex flex-col justify-end absolute h-screen top-0 w-full z-0">
         <div
           ref={locationPanelRef}
-          className="absolute bg-white w-full bottom-16 transition-all duration-300 z-10"
+          className="absolute bg-white w-full bottom-0 transition-all duration-300 z-0"
         >
           <LocationSearchPanel
             pickup={pickup}
@@ -165,18 +171,34 @@ const Home = () => {
           destinationLocation={destinationLocation}
           setVehiclePanel={setVehiclePanel}
           setConfirmRidePanel={setConfirmRidePanel}
+          setSelectedVehicle={setSelectedVehicle}
           userToken={userToken}
+          setSelectedVehicleImage={setSelectedVehicleImage} 
+          setFee={setVehicleFee} 
         />
       </div>
 
       {/* Confirm Ride Panel */}
       <div ref={confirmRidePanelRef} className="fixed z-20 bottom-0 translate-y-full w-full bg-white p-5">
-        <ConfirmRide setConfirmRidePanel={setConfirmRidePanel} setVehicleFound={setVehicleFound} />
+        <ConfirmRide
+          setConfirmRidePanel={setConfirmRidePanel}
+          setVehicleFound={setVehicleFound}
+          selectedVehicleImage={selectedVehicleImage}
+          pickupLocation={pickupLocation}
+          destinationLocation={destinationLocation}
+          vehicleFee={vehicleFee} // Fee for the selected vehicle
+        />
       </div>
 
       {/* Vehicle Found Panel */}
-      <div ref={vehicleFoundRef} className="fixed z-20 bottom-0 translate-y-full w-full bg-white p-5">
-        <LookinngForDriver setVehicleFound={setVehicleFound} />
+      <div ref={vehicleFoundRef} className="fixed z-30 bottom-0 translate-y-full w-full bg-white p-5">
+        <LookinngForDriver
+          setVehicleFound={setVehicleFound}
+          selectedVehicleImage={selectedVehicleImage}
+          pickupLocation={pickupLocation}
+          destinationLocation={destinationLocation}
+          vehicleFee={vehicleFee}
+        />
       </div>
 
       {/* Waiting for Driver Panel */}

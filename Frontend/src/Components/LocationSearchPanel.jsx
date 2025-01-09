@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 
 const LocationSearchPanel = ({ setPickup, setDestination }) => {
   const [pickupInput, setPickupInput] = useState('');
@@ -29,7 +28,10 @@ const LocationSearchPanel = ({ setPickup, setDestination }) => {
         }));
         callback(places);
       })
-      .catch((error) => console.error('Error fetching suggestions:', error));
+      .catch((error) => {
+        console.error('Error fetching suggestions:', error);
+        setMessage('Failed to load suggestions');
+      });
   };
 
   const handlePickupChange = (event) => {
@@ -44,95 +46,71 @@ const LocationSearchPanel = ({ setPickup, setDestination }) => {
     fetchSuggestions(query, setDestinationSuggestions);
   };
 
-  const handleSuggestionClick = (type, suggestion) => {
-    if (type === 'pickup') {
-      setPickupInput(suggestion.name);
-      setPickupState({ lat: suggestion.lat, lng: suggestion.lng });
-      setPickup({ lat: suggestion.lat, lng: suggestion.lng });
-      console.log('Selected Pickup Location:', suggestion);
-      setPickupSuggestions([]);
-    } else if (type === 'destination') {
-      setDestinationInput(suggestion.name);
-      setDestinationState({ lat: suggestion.lat, lng: suggestion.lng });
-      setDestination({ lat: suggestion.lat, lng: suggestion.lng });
-      console.log('Selected Destination Location:', suggestion);
-      setDestinationSuggestions([]);
-    }
+  const handlePickupSelect = (location) => {
+    setPickupState(location);
+    setPickup(location); // Update parent state for pickup
+    setPickupInput(location.name);
+    setPickupSuggestions([]); // Clear suggestions
   };
 
-  const handleSaveLocations = async () => {
-    if (!pickup || !destination) {
-      setMessage('Please select both pickup and destination locations.');
-      return;
-    }
-
-    try {
-      const response = await axios.post('http://localhost:4000/api/maps/saveLocations', {
-        pickup,
-        destination,
-      });
-      setMessage('Locations saved successfully!');
-      console.log('Locations saved:', response.data);
-    } catch (error) {
-      setMessage('Error saving locations.');
-      console.error('Error saving locations:', error.response?.data || error.message);
-    }
+  const handleDestinationSelect = (location) => {
+    setDestinationState(location);
+    setDestination(location); // Update parent state for destination
+    setDestinationInput(location.name);
+    setDestinationSuggestions([]); // Clear suggestions
   };
-
-  // Automatically save locations when both are selected
-  useEffect(() => {
-    if (pickup && destination) {
-      handleSaveLocations();
-    }
-  }, [pickup, destination]); // Trigger whenever pickup or destination changes
 
   return (
-    <div className="flex flex-col space-y-4 p-4">
-      <div className="relative">
+    <div className="flex flex-col space-y-4 p-4 bg-white rounded-md shadow-lg w-full">
+      <div className="flex flex-col space-y-2">
+        <label className="text-gray-600 font-semibold">Pickup Location</label>
         <input
           type="text"
           value={pickupInput}
           onChange={handlePickupChange}
-          placeholder="Enter pickup location"
-          className="border border-gray-300 rounded px-4 py-2 w-full"
+          placeholder="Enter Pickup Location"
+          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         {pickupSuggestions.length > 0 && (
-          <ul className="absolute z-10 bg-white border border-gray-300 rounded w-full max-h-48 overflow-y-auto">
+          <div className="bg-white border rounded-md shadow-md mt-2 max-h-48 overflow-y-auto">
             {pickupSuggestions.map((suggestion, index) => (
-              <li
+              <div
                 key={index}
-                onClick={() => handleSuggestionClick('pickup', suggestion)}
-                className="p-2 hover:bg-gray-200 cursor-pointer"
+                onClick={() => handlePickupSelect(suggestion)}
+                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
               >
                 {suggestion.name}
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
-      <div className="relative">
+
+      <div className="flex flex-col space-y-2">
+        <label className="text-gray-600 font-semibold">Destination Location</label>
         <input
           type="text"
           value={destinationInput}
           onChange={handleDestinationChange}
-          placeholder="Enter destination location"
-          className="border border-gray-300 rounded px-4 py-2 w-full"
+          placeholder="Enter Destination Location"
+          className="px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
         />
         {destinationSuggestions.length > 0 && (
-          <ul className="absolute z-10 bg-white border border-gray-300 rounded w-full max-h-48 overflow-y-auto">
+          <div className="bg-white border rounded-md shadow-md mt-2 max-h-48 overflow-y-auto">
             {destinationSuggestions.map((suggestion, index) => (
-              <li
+              <div
                 key={index}
-                onClick={() => handleSuggestionClick('destination', suggestion)}
-                className="p-2 hover:bg-gray-200 cursor-pointer"
+                onClick={() => handleDestinationSelect(suggestion)}
+                className="px-4 py-2 cursor-pointer hover:bg-gray-100"
               >
                 {suggestion.name}
-              </li>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
-      {message && <p className="text-center text-red-500 mt-2">{message}</p>}
+
+      {message && <p className="text-red-500 text-sm">{message}</p>}
     </div>
   );
 };

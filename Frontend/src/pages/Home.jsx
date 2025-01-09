@@ -30,28 +30,14 @@ const Home = () => {
   const waitingForDriverRef = useRef(null);
 
   useEffect(() => {
-    if (pickup && destination) {
-      const fetchRoute = async () => {
-        try {
-          const response = await axios.get(
-            'https://api.openrouteservice.org/v2/directions/driving-car',
-            {
-              headers: { Authorization: '5b3ce3597851110001cf62481c56779035fe43b8ab50db80f7032ba9' },
-              params: {
-                start: `${pickup.lng},${pickup.lat}`,
-                end: `${destination.lng},${destination.lat}`,
-              },
-            }
-          );
-          setRoute(response.data);
-          setVehiclePanel(true); // Show vehicle panel once the route is set
-        } catch (error) {
-          console.error('Error fetching route:', error);
-        }
-      };
-      fetchRoute();
-    }
-  }, [pickup, destination]);
+  if (pickup && destination) {
+    // Update both pickupLocation and destinationLocation
+    setPickupLocation(pickup);
+    setDestinationLocation(destination);
+    setVehiclePanel(true);  
+  }
+}, [pickup, destination]);
+
 
   const updateLocation = (location, type) => {
     if (type === 'pickup') {
@@ -177,7 +163,6 @@ const Home = () => {
         <VehiclePanel
           pickupLocation={pickupLocation}
           destinationLocation={destinationLocation}
-          distance={distance}
           setVehiclePanel={setVehiclePanel}
           setConfirmRidePanel={setConfirmRidePanel}
           userToken={userToken}

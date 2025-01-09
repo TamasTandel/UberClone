@@ -73,7 +73,7 @@ const MapComponent = ({ pickup, destination }) => {
       if (!pickupMarkerRef.current) {
         pickupMarkerRef.current = L.marker([pickup.lat, pickup.lng], {
           icon: L.icon({
-            iconUrl: 'https://imgs.search.brave.com/q46mmMlMuUjLVAQ5Sms89zZh_ebyQ9lF46Ey_t3hv6I/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/Z29nZXRpY29uLm5l/dC9maWxlcy8zMTIx/Mjg3LzY0eDY0L2Nj/NDk5NDI3YjNlNDM2/MTg2ZjhhYmUzM2Nm/YWYzYjc4LnBuZw', // Pickup marker icon
+            iconUrl: 'https://cdn.gogeticon.net/files/3181885/64x64/1d7ae2d77f2d8c931ca3d4b77e2f63aa.png', // Pickup marker icon
             iconSize: [25, 25],
           }),
         }).addTo(mapRef.current);
@@ -88,7 +88,7 @@ const MapComponent = ({ pickup, destination }) => {
       if (!destinationMarkerRef.current) {
         destinationMarkerRef.current = L.marker([destination.lat, destination.lng], {
           icon: L.icon({
-            iconUrl: 'https://imgs.search.brave.com/q46mmMlMuUjLVAQ5Sms89zZh_ebyQ9lF46Ey_t3hv6I/rs:fit:500:0:0:0/g:ce/aHR0cHM6Ly9jZG4u/Z29nZXRpY29uLm5l/dC9maWxlcy8zMTIx/Mjg3LzY0eDY0L2Nj/NDk5NDI3YjNlNDM2/MTg2ZjhhYmUzM2Nm/YWYzYjc4LnBuZw', // Destination marker icon
+            iconUrl: 'https://cdn.gogeticon.net/files/3181885/64x64/1d7ae2d77f2d8c931ca3d4b77e2f63aa.png', // Destination marker icon
             iconSize: [25, 25],
           }),
         }).addTo(mapRef.current);

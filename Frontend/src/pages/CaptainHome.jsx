@@ -66,7 +66,7 @@ const CaptainHome = () => {
   return (
     <div className="h-screen relative">
       {/* Header */}
-      <div className="fixed flex justify-between w-full z-10">
+      <div className="fixed bg-white flex justify-between w-full z-10">
         <img
           className="w-28"
           src="https://cdn-assets-us.frontify.com/s3/frontify-enterprise-files-us/eyJwYXRoIjoicG9zdG1hdGVzXC9hY2NvdW50c1wvODRcLzQwMDA1MTRcL3Byb2plY3RzXC8yN1wvYXNzZXRzXC9lZFwvNTUwOVwvNmNmOGVmM2YzMjFkMTA3YThmZGVjNjY1NjJlMmVmMzctMTYyMDM3Nzc0OC5haSJ9:postmates:9KZWqmYNXpeGs6pQy4UCsx5EL3qq29lhFS6e4ZVfQrs?width=2400"

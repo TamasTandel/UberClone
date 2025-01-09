@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
-const LocationSearchPanel = ({ setPickup, setDestination } , props) => {
+const LocationSearchPanel = ({ setPickup, setDestination }) => {
   const [pickupInput, setPickupInput] = useState('');
   const [destinationInput, setDestinationInput] = useState('');
   const [pickupSuggestions, setPickupSuggestions] = useState([]);
   const [destinationSuggestions, setDestinationSuggestions] = useState([]);
+  const [message, setMessage] = useState(''); // For feedback messages
+  const [pickup, setPickupState] = useState(null); // Store selected pickup location
+  const [destination, setDestinationState] = useState(null); // Store selected destination location
 
   const fetchSuggestions = (query, callback) => {
     if (!query) {
@@ -43,18 +47,47 @@ const LocationSearchPanel = ({ setPickup, setDestination } , props) => {
   const handleSuggestionClick = (type, suggestion) => {
     if (type === 'pickup') {
       setPickupInput(suggestion.name);
+      setPickupState({ lat: suggestion.lat, lng: suggestion.lng });
       setPickup({ lat: suggestion.lat, lng: suggestion.lng });
-      setPickupSuggestions([]); // Clear pickup suggestions
+      console.log('Selected Pickup Location:', suggestion);
+      setPickupSuggestions([]);
     } else if (type === 'destination') {
       setDestinationInput(suggestion.name);
+      setDestinationState({ lat: suggestion.lat, lng: suggestion.lng });
       setDestination({ lat: suggestion.lat, lng: suggestion.lng });
-      setDestinationSuggestions([]); // Clear destination suggestions
+      console.log('Selected Destination Location:', suggestion);
+      setDestinationSuggestions([]);
     }
   };
 
+  const handleSaveLocations = async () => {
+    if (!pickup || !destination) {
+      setMessage('Please select both pickup and destination locations.');
+      return;
+    }
+
+    try {
+      const response = await axios.post('http://localhost:4000/api/maps/saveLocations', {
+        pickup,
+        destination,
+      });
+      setMessage('Locations saved successfully!');
+      console.log('Locations saved:', response.data);
+    } catch (error) {
+      setMessage('Error saving locations.');
+      console.error('Error saving locations:', error.response?.data || error.message);
+    }
+  };
+
+  // Automatically save locations when both are selected
+  useEffect(() => {
+    if (pickup && destination) {
+      handleSaveLocations();
+    }
+  }, [pickup, destination]); // Trigger whenever pickup or destination changes
+
   return (
-    <div className="flex flex-col space-y-4 p-4 ">
-      {/* Pickup Input */}
+    <div className="flex flex-col space-y-4 p-4">
       <div className="relative">
         <input
           type="text"
@@ -77,8 +110,6 @@ const LocationSearchPanel = ({ setPickup, setDestination } , props) => {
           </ul>
         )}
       </div>
-
-      {/* Destination Input */}
       <div className="relative">
         <input
           type="text"
@@ -101,6 +132,7 @@ const LocationSearchPanel = ({ setPickup, setDestination } , props) => {
           </ul>
         )}
       </div>
+      {message && <p className="text-center text-red-500 mt-2">{message}</p>}
     </div>
   );
 };

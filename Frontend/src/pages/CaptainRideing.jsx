@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react'; // Combined import
 import { useGSAP } from '@gsap/react';
 import { Link } from 'react-router-dom';
 import FinishRide from '../Components/FinishRide';
-import Map from '../Components/Map';
+// import Map from '../Components/Map';
 import CaptainDetails from '../Components/CaptainDetails';
 import gsap from 'gsap';
 import MapComponent from '../Components/MapComponent';

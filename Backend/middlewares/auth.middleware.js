@@ -4,6 +4,8 @@ const jwt = require('jsonwebtoken');
 const blackListTokenModel = require('../models/blacklistingToken.model');
 const captainModel = require('../models/captain.model');
 
+const JWT_SECRET = process.env.JWT_SECRET;
+
 // Auth Middleware for Users
 module.exports.authUser = async (req, res, next) => {
     const token = req.cookies.token || req.headers.authorization?.replace('Bearer ', '');
@@ -13,16 +15,12 @@ module.exports.authUser = async (req, res, next) => {
     }
 
     try {
-        // Check if token is blacklisted
         const isBlacklisted = await blackListTokenModel.findOne({ token });
-if (isBlacklisted) {
-    return res.status(401).json({ message: 'Unauthorized' });
-}
-        
+        if (isBlacklisted) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
 
-
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
         const user = await userModel.findById(decoded._id);
 
         if (!user) {
@@ -51,14 +49,12 @@ module.exports.authCaptain = async (req, res, next) => {
     }
 
     try {
-        // Check if token is blacklisted
         const isBlacklisted = await blackListTokenModel.findOne({ token });
         if (isBlacklisted) {
             return res.status(401).json({ message: 'Unauthorized' });
         }
 
-        // Verify token
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(token, JWT_SECRET);
         const captain = await captainModel.findById(decoded._id);
 
         if (!captain) {
@@ -69,12 +65,45 @@ module.exports.authCaptain = async (req, res, next) => {
         next();
     } catch (err) {
         if (err.name === 'TokenExpiredError') {
-    return res.status(401).json({ message: 'Token expired' });
+            return res.status(401).json({ message: 'Token expired' });
         } else if (err.name === 'JsonWebTokenError') {
-    return res.status(400).json({ message: 'Invalid token' });
+            return res.status(400).json({ message: 'Invalid token' });
         }
-        
         console.error('AuthCaptain Error:', err);
+        res.status(500).json({ message: 'Server error' });
+    }
+};
+
+// Auth Middleware for Map Access (Optional, extensible for additional map-related checks)
+module.exports.authMapAccess = async (req, res, next) => {
+    try {
+        const token = req.cookies.token || req.headers.authorization?.replace('Bearer ', '');
+
+        if (!token) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const isBlacklisted = await blackListTokenModel.findOne({ token });
+        if (isBlacklisted) {
+            return res.status(401).json({ message: 'Unauthorized' });
+        }
+
+        const decoded = jwt.verify(token, JWT_SECRET);
+        const user = await userModel.findById(decoded._id) || await captainModel.findById(decoded._id);
+
+        if (!user) {
+            return res.status(404).json({ message: 'User or Captain not found' });
+        }
+
+        // Optional: Check for specific permissions or roles (e.g., access to maps)
+        if (user.role && user.role !== 'mapUser') {
+            return res.status(403).json({ message: 'Access denied to map features' });
+        }
+
+        req.user = user;
+        next();
+    } catch (err) {
+        console.error('AuthMapAccess Error:', err);
         res.status(500).json({ message: 'Server error' });
     }
 };

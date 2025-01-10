@@ -24,6 +24,7 @@ const Home = () => {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedVehicleImage, setSelectedVehicleImage] = useState(null);
   const [vehicleFee, setVehicleFee] = useState(null);
+  const [travelTime, setTravelTime] = useState(null);
 
   const mapRef = useRef(null);
   const locationPanelRef = useRef(null);
@@ -133,6 +134,7 @@ const Home = () => {
       });
     }
   }, [waitingForDriver]);
+  
 
   return (
     <div className="h-screen relative overflow-hidden">
@@ -175,6 +177,7 @@ const Home = () => {
           userToken={userToken}
           setSelectedVehicleImage={setSelectedVehicleImage} 
           setFee={setVehicleFee} 
+          setTravelTime={setTravelTime} 
         />
       </div>
 
@@ -187,6 +190,7 @@ const Home = () => {
           pickupLocation={pickupLocation}
           destinationLocation={destinationLocation}
           vehicleFee={vehicleFee} // Fee for the selected vehicle
+          travelTime={travelTime}
         />
       </div>
 
@@ -198,6 +202,7 @@ const Home = () => {
           pickupLocation={pickupLocation}
           destinationLocation={destinationLocation}
           vehicleFee={vehicleFee}
+          travelTime={travelTime}
         />
       </div>
 

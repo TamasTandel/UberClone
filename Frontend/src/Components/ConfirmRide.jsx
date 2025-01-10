@@ -1,20 +1,19 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 const ConfirmRide = ({
   setConfirmRidePanel,
   setVehicleFound,
-  selectedVehicleImage, // Selected vehicle image
-  pickupLocation, // Pickup location details
-  destinationLocation, // Destination location details
-  vehicleFee, // Fee for the selected vehicle
+  selectedVehicleImage,
+  pickupLocation,
+  destinationLocation,
+  vehicleFee,
+  travelTime,
 }) => {
   return (
     <div className="z-50">
       <h5
         className="p-1 text-center absolute top-0 text-gray-300 w-[90%] text-4xl"
-        onClick={() => {
-          setConfirmRidePanel(false);
-        }}
+        onClick={() => setConfirmRidePanel(false)}
       >
         <i className="ri-arrow-down-wide-line"></i>
       </h5>
@@ -38,6 +37,14 @@ const ConfirmRide = ({
               </h3>
             </div>
           </div>
+          <div className="flex items-center gap-5 m-2 p-2 border-b-2">
+            <i className="ri-time-line text-xl"></i>
+            <div>
+              <h3 className="text-lg font-medium">
+                Travel Time: {travelTime ? `${travelTime} min` : "Calculating..."}
+              </h3>
+            </div>
+          </div>
           <div className="flex items-center gap-5 m-2 p-2">
             <i className="ri-currency-line text-xl"></i>
             <div>
@@ -51,7 +58,7 @@ const ConfirmRide = ({
             setVehicleFound(true);
             setConfirmRidePanel(false);
           }}
-          className="w-full mt-5 z-30 bg-green-700 text-white font-semibold rounded-lg p-2 text-lg"
+          className="w-full mt-5 bg-black text-white p-4 rounded-lg"
         >
           Confirm
         </button>

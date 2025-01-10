@@ -63,7 +63,7 @@ const LocationSearchPanel = ({ setPickup, setDestination }) => {
   return (
     <div className="flex flex-col space-y-4 p-4 bg-white rounded-md shadow-lg w-full">
       <div className="flex flex-col space-y-2">
-        <label className="text-gray-600 font-semibold">Pickup Location</label>
+        <label className="text-gray-900 font-semibold">Pickup Location</label>
         <input
           type="text"
           value={pickupInput}

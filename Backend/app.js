@@ -14,16 +14,15 @@ const mapsRoutes = require('./routes/maps.routes');
 connectToDb();
 
 const app = express();
-// const cors = require('cors');
 
-// Middleware setup
 app.use(cors());
 
-// app.use(cors({
-//     origin: 'http://localhost:5173', // Adjust to match frontend URL
-//     methods: ['GET', 'POST'],
-//     allowedHeaders: ['Content-Type'],
-// }));
+app.use(cors({
+  origin: "http://localhost:5173", // Frontend URL
+  methods: "GET,POST,PUT,DELETE",
+  credentials: true
+}));
+
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

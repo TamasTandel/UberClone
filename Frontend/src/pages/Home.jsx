@@ -14,7 +14,7 @@ const Home = () => {
   const [pickupLocation, setPickupLocation] = useState(null);
   const [destinationLocation, setDestinationLocation] = useState(null);
   const [userToken, setUserToken] = useState(localStorage.getItem("userToken"));
-  const [distance, setDistance] = useState(null);
+  const [routeDistance, setRouteDistance] = useState(null);
   const [route, setRoute] = useState(null);
   const [isLocationsSelected, setIsLocationsSelected] = useState(false);
   const [vehiclePanel, setVehiclePanel] = useState(false);
@@ -23,6 +23,7 @@ const Home = () => {
   const [waitingForDriver, setWaitingForDriver] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [selectedVehicleImage, setSelectedVehicleImage] = useState(null);
+  const [selectedVehicleName, setSelectedVehicleName] = useState("");
   const [vehicleFee, setVehicleFee] = useState(null);
   const [travelTime, setTravelTime] = useState(null);
 
@@ -167,32 +168,36 @@ const Home = () => {
       </div>
 
       {/* Vehicle Panel */}
-      <div ref={vehiclePanelRef} className="fixed z-20 bottom-0 translate-y-full w-full p-5 bg-white">
-        <VehiclePanel
-          pickupLocation={pickupLocation}
-          destinationLocation={destinationLocation}
-          setVehiclePanel={setVehiclePanel}
-          setConfirmRidePanel={setConfirmRidePanel}
-          setSelectedVehicle={setSelectedVehicle}
-          userToken={userToken}
-          setSelectedVehicleImage={setSelectedVehicleImage} 
-          setFee={setVehicleFee} 
-          setTravelTime={setTravelTime} 
-        />
-      </div>
+        <div ref={vehiclePanelRef} className="fixed z-20 bottom-0 translate-y-full w-full p-5 bg-white">
+          <VehiclePanel
+            pickupLocation={pickupLocation}
+            destinationLocation={destinationLocation}
+            setVehiclePanel={setVehiclePanel}
+            setConfirmRidePanel={setConfirmRidePanel}
+            setSelectedVehicle={setSelectedVehicle}
+            userToken={userToken}
+            setSelectedVehicleImage={setSelectedVehicleImage}
+            setFee={setVehicleFee} 
+            setTravelTime={setTravelTime} 
+            setRouteDistance={setRouteDistance}
+            setSelectedVehicleName={setSelectedVehicleName}
+          />
+        </div>
 
-      {/* Confirm Ride Panel */}
-      <div ref={confirmRidePanelRef} className="fixed z-20 bottom-0 translate-y-full w-full bg-white p-5">
-        <ConfirmRide
-          setConfirmRidePanel={setConfirmRidePanel}
-          setVehicleFound={setVehicleFound}
-          selectedVehicleImage={selectedVehicleImage}
-          pickupLocation={pickupLocation}
-          destinationLocation={destinationLocation}
-          vehicleFee={vehicleFee} // Fee for the selected vehicle
-          travelTime={travelTime}
-        />
-      </div>
+        {/* Confirm Ride Panel */}
+        <div ref={confirmRidePanelRef} className="fixed z-20 bottom-0 translate-y-full w-full bg-white p-5">
+          <ConfirmRide
+            setConfirmRidePanel={setConfirmRidePanel}
+            setVehicleFound={setVehicleFound}
+            selectedVehicleImage={selectedVehicleImage}
+            selectedVehicleName={selectedVehicleName} 
+            pickupLocation={pickupLocation}
+            destinationLocation={destinationLocation}
+            vehicleFee={vehicleFee} // Fee for the selected vehicle
+            travelTime={travelTime} // Travel time for the selected vehicle
+            routeDistance={routeDistance}
+          />
+        </div>
 
       {/* Vehicle Found Panel */}
       <div ref={vehicleFoundRef} className="fixed z-30 bottom-0 translate-y-full w-full bg-white p-5">

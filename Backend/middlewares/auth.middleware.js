@@ -10,6 +10,8 @@ const JWT_SECRET = process.env.JWT_SECRET;
 module.exports.authUser = async (req, res, next) => {
     const token = req.cookies.token || req.headers.authorization?.replace('Bearer ', '');
 
+    console.log('Token:', token);
+
     if (!token) {
         return res.status(401).json({ message: 'Unauthorized' });
     }

@@ -22,6 +22,7 @@
     "jsonwebtoken": "^9.0.2",
     "jwt-decode": "^3.1.2",
     "mongoose": "^8.9.3",
-    "openrouteservice": "^0.1.2"
+    "openrouteservice": "^0.1.2",
+    "socket.io": "^4.8.1"
   }
 }

@@ -4,50 +4,38 @@ const mapsController = require('../controllers/maps.controller');
 const authMiddleware = require('../middlewares/auth.middleware');
 const { authMapAccess } = require('../middlewares/auth.middleware');
 const Location = require('../models/maps.model');
-
+const jwt = require("jsonwebtoken");
 const router = express.Router();
 
+// Route to get map data with access control
 router.get('/mapData', authMapAccess, mapsController.getMapData);
 
-router.post(
-    '/save',
-    authMiddleware.authUser,
-    [
-        body('pickup.name').notEmpty().withMessage('Pickup name is required'),
-        body('pickup.coordinates.lat').isNumeric().withMessage('Valid pickup latitude is required'),
-        body('pickup.coordinates.lng').isNumeric().withMessage('Valid pickup longitude is required'),
-        body('destination.name').notEmpty().withMessage('Destination name is required'),
-        body('destination.coordinates.lat').isNumeric().withMessage('Valid destination latitude is required'),
-        body('destination.coordinates.lng').isNumeric().withMessage('Valid destination longitude is required'),
-    ],
-    mapsController.saveLocation
-);
-
+// Route to get locations by user, with authentication
 router.get(
     '/user/:userId',
     authMiddleware.authUser,
     mapsController.getLocationsByUser
 );
 
-router.post('/saveLocations', async (req, res) => {
-    try {
-        console.log('Request Body:', req.body); // Log the request body
-
-        const { pickup, destination } = req.body;
-
-        if (!pickup || !pickup.lat || !pickup.lng || !destination || !destination.lat || !destination.lng) {
-            return res.status(400).json({ error: 'Invalid pickup or destination format.' });
-        }
-
-        const location = new Location({ pickup, destination });
-        await location.save();
-
-        res.status(200).json({ message: 'Locations saved successfully!', location });
-    } catch (error) {
-        console.error('Error saving location:', error.message); // Log the error
-        res.status(500).json({ error: 'Internal Server Error' });
-    }
-});
-
+// Route to save location with validation and authentication
+router.post(
+    '/save',
+    authMiddleware.authUser,
+    [
+        body('pickup.name').notEmpty().withMessage('Pickup name is required'),
+        body('pickup.lat').isNumeric().withMessage('Pickup latitude is required'),
+        body('pickup.lng').isNumeric().withMessage('Pickup longitude is required'),
+        body('destination.name').notEmpty().withMessage('Destination name is required'),
+        body('destination.lat').isNumeric().withMessage('Destination latitude is required'),
+        body('destination.lng').isNumeric().withMessage('Destination longitude is required'),
+        body('distance').isNumeric().withMessage('Distance is required'),
+        // body('vehicle.name').notEmpty().withMessage('Vehicle name is required'),
+        body('vehicle.fee').isNumeric().withMessage('Vehicle fee is required'),
+        body('vehicle.estimatedTime').notEmpty().withMessage('Vehicle estimated time is required'),
+        // body('userLiveLocation.lat').isNumeric().withMessage('User live location latitude is required'),
+        // body('userLiveLocation.lng').isNumeric().withMessage('User live location longitude is required'),
+    ],
+    mapsController.saveLocation
+);
 
 module.exports = router;

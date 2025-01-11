@@ -1,20 +1,24 @@
 import React, { useState, useEffect } from "react";
 
 const VehiclePanel = ({
-  pickupLocation,
-  destinationLocation,
   setVehiclePanel,
   setConfirmRidePanel,
+  setSelectedVehicle,
   setSelectedVehicleImage,
   setFee,
   setTravelTime,
+  pickupLocation,
+  destinationLocation,
+  setRouteDistance ,
 }) => {
   const [distance, setDistance] = useState(null);
   const [travelTimes, setTravelTimes] = useState({});
   const [loading, setLoading] = useState(true);
+  const [selectedVehicleName, setSelectedVehicleName] = useState("");
 
   const openRouteServiceApiKey = "5b3ce3597851110001cf62481c56779035fe43b8ab50db80f7032ba9";
 
+  // Fetch route details based on pickup and destination
   const fetchRouteDetails = async () => {
     if (!pickupLocation || !destinationLocation) return;
 
@@ -41,7 +45,8 @@ const VehiclePanel = ({
 
       if (data.routes && data.routes[0]) {
         const route = data.routes[0].summary;
-        setDistance(route.distance / 1000); // Convert meters to kilometers
+        setDistance(route.distance / 1000); 
+        setRouteDistance(route.distance / 1000)
         setTravelTimes({
           car: Math.ceil(route.duration / 60),
           auto: Math.ceil(route.duration / 60 * 1.2),
@@ -61,6 +66,7 @@ const VehiclePanel = ({
     fetchRouteDetails();
   }, [pickupLocation, destinationLocation]);
 
+  // Calculate the fee for each vehicle based on the distance
   const calculateFee = (distance, vehicle) => {
     let fee;
     if (vehicle === "Uber Moto") {
@@ -73,6 +79,18 @@ const VehiclePanel = ({
 
     fee = Math.ceil(fee); // Round up to the nearest whole number
     return fee;
+  };
+
+  // Handle vehicle selection and update the relevant state
+  const handleSelectVehicle = (vehicle) => {
+    const fee = calculateFee(distance, vehicle.name);
+    setSelectedVehicleName(vehicle.name);
+    setSelectedVehicle(vehicle);
+    setSelectedVehicleImage(vehicle.image);
+    setFee(fee);
+    setTravelTime(travelTimes[vehicle.type]);
+    setConfirmRidePanel(true);
+    setVehiclePanel(false);
   };
 
   return (
@@ -124,15 +142,10 @@ const VehiclePanel = ({
       ].map((vehicle, index) => (
         <div
           key={index}
-          onClick={() => {
-            const fee = calculateFee(distance, vehicle.name);
-            setConfirmRidePanel(true);
-            setVehiclePanel(false);
-            setSelectedVehicleImage(vehicle.image);
-            setTravelTime(travelTimes[vehicle.type]);
-            setFee(fee); // Pass selected fee
-          }}
-          className="flex items-center w-full justify-center border-2 active:border-black rounded-xl p-1 my-2"
+          onClick={() => handleSelectVehicle(vehicle)}
+          className={`flex items-center w-full justify-center border-2 active:border-black rounded-xl p-1 my-2 ${
+            selectedVehicleName === vehicle.name ? "bg-gray-200" : ""
+          }`}
         >
           <img className="h-20 w-20" src={vehicle.image} alt={vehicle.name} />
 

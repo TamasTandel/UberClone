@@ -7,13 +7,17 @@ module.exports.saveLocation = async (req, res, next) => {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { userId, pickup, destination } = req.body;
+    const { userId, username, pickup, destination, distance, vehicle } = req.body;
 
     try {
         const locationData = await mapsService.saveLocation({
             userId,
+            username,
             pickup,
             destination,
+            distance,
+            vehicle,
+            // userLiveLocation,
         });
 
         res.status(201).json({
@@ -22,7 +26,7 @@ module.exports.saveLocation = async (req, res, next) => {
         });
     } catch (error) {
         console.error('Error saving location:', error);
-        res.status(500).json({ message: 'Failed to save location', error });
+        res.status(500).json({ message: 'Failed to save location', error: error.message });
     }
 };
 
@@ -38,36 +42,10 @@ module.exports.getLocationsByUser = async (req, res, next) => {
         });
     } catch (error) {
         console.error('Error fetching locations:', error);
-        res.status(500).json({ message: 'Failed to fetch locations', error });
+        res.status(500).json({ message: 'Failed to fetch locations', error: error.message });
     }
 };
 
 module.exports.getMapData = (req, res) => {
     res.status(200).json({ message: 'Map data accessed successfully' });
-};
-
-module.exports.saveLocations = async (req, res) => {
-  const { pickup, destination } = req.body;
-
-  if (!pickup || !destination) {
-    return res.status(400).json({ message: 'Pickup and destination locations are required' });
-  }
-
-  try {
-    // Create a new Location document
-    const newLocation = new Location({
-      pickup_lat: pickup.lat,
-      pickup_lng: pickup.lng,
-      destination_lat: destination.lat,
-      destination_lng: destination.lng,
-    });
-
-    // Save the location to the database
-    await newLocation.save();
-
-    res.status(201).json({ message: 'Locations saved successfully' });
-  } catch (error) {
-    console.error('Error saving locations:', error);
-    res.status(500).json({ message: 'Error saving locations', error });
-  }
 };

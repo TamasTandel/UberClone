@@ -22,7 +22,7 @@ module.exports.registerUser = async (req, res, next) => {
     const user = await userService.createUser({
         firstname: fullname.firstname,
         lastname: fullname.lastname,
-        email,
+        email,  
         password: hashedPassword,
     });
 
@@ -61,10 +61,11 @@ module.exports.loginUser = async(req,res,next)=>{
 
     const jwtDecode = require('jwt-decode');
     const decoded = jwtDecode(token);
+    console.log('Token:', token);
     console.log("Decoded Token:", decoded);
     console.log("Expiration Time:", new Date(decoded.exp * 1000));
     console.log("Current Time:", new Date());
-
+    
     res.cookie('token',token);
 
     res.status(200).json({token,user});

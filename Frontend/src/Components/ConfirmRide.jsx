@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+import { io } from "socket.io-client";
+const socket = io("http://localhost:4000"); 
 
 const ConfirmRide = ({
   setConfirmRidePanel,
@@ -20,7 +22,7 @@ const ConfirmRide = ({
     userId: "",
   });
   
-useEffect(() => {
+  useEffect(() => {
     const fetchUserProfile = async () => {
       try {
         const token = localStorage.getItem("token"); // Get token from localStorage
@@ -56,16 +58,10 @@ useEffect(() => {
   }, []); 
 
   const handleConfirm = async () => {
-    // Check if required fields are missing
     if (!pickupLocation || !destinationLocation) {
       alert("Please ensure both pickup and destination locations are available!");
       return;
-    }
-
-    // if (!selectedVehicleName) {
-    //   alert("Please select a vehicle!");
-    //   return;
-    // }
+    } 
 
     if (vehicleFee === null || vehicleFee === undefined) {
       alert("Vehicle fee has not been calculated!");
@@ -95,14 +91,9 @@ useEffect(() => {
       },
       distance: routeDistance,
       vehicle: {
-        // name: selectedVehicleName,
         fee: vehicleFee,
         estimatedTime: travelTime,
       },
-      // userLiveLocation: {
-      //   lat: userLiveLocation?.lat || 0,
-      //   lng: userLiveLocation?.lng || 0,
-      // },
     };
 
     console.log("Ride Data: ", rideData);

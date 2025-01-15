@@ -38,4 +38,13 @@ router.post(
     mapsController.saveLocation
 );
 
+// Route to get the latest ride for the captain
+router.get('/latestRide', authMiddleware.authCaptain, mapsController.getLatestRide);
+
+router.get('/getData', authMapAccess, mapsController.getMapData);
+
+// rourouter.get("/getPendingRides", rideController.getPendingRides);
+
+router.get('/rides', mapsController.getAllRides);
+
 module.exports = router;

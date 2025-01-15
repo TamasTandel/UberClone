@@ -78,6 +78,8 @@ module.exports.authCaptain = async (req, res, next) => {
 
 // Auth Middleware for Map Access (Optional, extensible for additional map-related checks)
 module.exports.authMapAccess = async (req, res, next) => {
+    const token = req.headers.authorization?.split(' ')[1]; // Get the token from the Authorization header
+
     try {
         const token = req.cookies.token || req.headers.authorization?.replace('Bearer ', '');
 
@@ -103,6 +105,7 @@ module.exports.authMapAccess = async (req, res, next) => {
         }
 
         req.user = user;
+        req.user = decoded;
         next();
     } catch (err) {
         console.error('AuthMapAccess Error:', err);

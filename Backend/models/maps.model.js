@@ -24,6 +24,7 @@ const locationSchema = new mongoose.Schema({
     //     lng: { type: Number, required: true },
     // },
     confirmedAt: { type: Date, default: Date.now }, // When the user confirmed the ride
+    
 });
 
 const Location = mongoose.model('Location', locationSchema);

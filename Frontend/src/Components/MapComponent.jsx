@@ -2,8 +2,9 @@ import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import axios from 'axios';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 
-const MapComponent = ({ pickup, destination }) => {
+const MapComponent = ({ pickup, destination , users, handleSelectUser, selectedLocation}) => {
   const mapRef = useRef(null);
   const liveLocationMarkerRef = useRef(null);
   const pickupMarkerRef = useRef(null);
@@ -45,6 +46,20 @@ const MapComponent = ({ pickup, destination }) => {
     }
   }, [pickup, destination]); // Re-run effect if pickup or destination changes
 
+  useEffect(() => {
+    if (selectedLocation) {
+      // Update the map to center on the selected location when the location is passed
+      const map = L.map('map').setView([selectedLocation[1], selectedLocation[0]], 13); // lat, lng
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+
+      // Create a marker for the selected location
+      L.marker([selectedLocation[1], selectedLocation[0]]).addTo(map)
+        .bindPopup('Selected Pickup Location')
+        .openPopup();
+    }
+  }, [selectedLocation]);
+  
   const fetchAndDisplayRoute = async () => {
     try {
       const response = await axios.get(

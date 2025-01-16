@@ -16,6 +16,7 @@ module.exports.saveLocation = async ({
     destination,
     distance,
     vehicle,
+    status,
     // userLiveLocation,
 }) => {
     if (!userId || !username || !pickup || !destination || !distance || !vehicle ) {
@@ -29,6 +30,7 @@ module.exports.saveLocation = async ({
         destination,
         distance,
         vehicle,
+        status,
         // userLiveLocation,
     });
 

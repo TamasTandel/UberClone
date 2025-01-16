@@ -122,3 +122,44 @@ module.exports.getAllRides = async (req, res) => {
         res.status(500).json({ message: 'Failed to fetch rides', error: error.message });
     }
 };
+
+module.exports.getPendingRides = async (req, res) => {
+    try {
+        const rides = await Locations.find({ status: 'pending' }).sort({ confirmedAt: -1 });
+        if (!rides || rides.length === 0) {
+            return res.status(404).json({ message: 'No pending rides available' });
+        }
+        res.status(200).json({
+            message: 'Pending rides fetched successfully',
+            data: rides,
+        });
+    } catch (error) {
+        console.error('Error fetching pending rides:', error);
+        res.status(500).json({ message: 'Failed to fetch pending rides', error: error.message });
+    }
+};
+
+module.exports.updateRideStatus = async (req, res) => {
+    const { rideId, status } = req.body;
+
+    if (!['pending', 'accepted', 'completed'].includes(status)) {
+        return res.status(400).json({ message: 'Invalid status value' });
+    }
+
+    try {
+        const ride = await Locations.findById(rideId);
+
+        if (!ride) {
+            return res.status(404).json({ message: 'Ride not found' });
+        }
+
+        ride.status = status;
+        await ride.save();
+
+        res.status(200).json({ message: 'Ride status updated successfully', ride });
+    } catch (error) {
+        console.error('Error updating ride status:', error);
+        res.status(500).json({ message: 'Failed to update ride status', error: error.message });
+    }
+};
+

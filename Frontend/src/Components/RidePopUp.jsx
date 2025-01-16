@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios"; // For making HTTP requests
 import { io } from "socket.io-client";
+import MapComponent from "./MapComponent"; 
 
 // Connect to the backend socket server
 const socket = io("http://localhost:4000");
@@ -9,46 +10,100 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
   const [rides, setRides] = useState([]); // State for storing all rides
   const [currentRideIndex, setCurrentRideIndex] = useState(0); // Index to track current ride
 
-  // Fetch pending rides and listen for new rides
+  // useEffect(() => {
+  //   const fetchRides = async () => {
+  //     try {
+  //       const response = await axios.get("http://localhost:4000/api/maps/getData", {
+  //         headers: {
+  //           Authorization: `Bearer ${localStorage.getItem("token")}`,
+  //         },
+  //       });
+
+  //       console.log("Fetched map data:", response.data.data); // Log the fetched data
+  //       setRides(response.data.data); // Populate rides state with fetched data
+  //     } catch (error) {
+  //       console.error("Error fetching map data:", error.message);
+  //     }
+  //   };
+
+  //   fetchRides();
+
+  //   socket.on("newRide", (ride) => {
+  //     setRides((prevRides) => [...prevRides, ride]);
+  //   });
+
+  //   return () => {
+  //     socket.off("newRide");
+  //   };
+  // }, []);
+
   useEffect(() => {
-    const fetchRides = async () => {
-      try {
-        const response = await axios.get("http://localhost:4000/api/maps/getData", {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
+    const fetchPendingRides = async () => {
+        try {
+          const response = await axios.get("http://localhost:4000/api/maps/pendingRides", {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          });
+        console.log("pending ride data:", response.data.data); // Log the fetched data
+          setRides(response.data.data);
+          } catch (error) {
+            console.error("Error fetching pending rides:", error.message);
+          }
+    };
+
+      fetchPendingRides();
+
+      socket.on("newRide", (ride) => {
+            if (ride.status === "pending") {
+                setRides((prevRides) => [...prevRides, ride]);
+            }
         });
 
-        console.log("Fetched map data:", response.data.data); // Log the fetched data
-        setRides(response.data.data); // Populate rides state with fetched data
-      } catch (error) {
-        console.error("Error fetching map data:", error.message);
-      }
+        return () => {
+            socket.off("newRide");
+        };
+    }, []);
+
+
+  const handleAccept = async () => {
+        const currentRide = rides[currentRideIndex];
+        try {
+            await axios.put(
+                "http://localhost:4000/api/maps/updateStatus",
+                { rideId: currentRide._id, status: "accepted" },
+                { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+            );
+
+            onAccept(currentRide);
+            setConfirmRidePopUpPanel(true);
+        } catch (error) {
+            console.error("Error accepting ride:", error.message);
+        }
     };
 
-    fetchRides();
 
-    socket.on("newRide", (ride) => {
-      setRides((prevRides) => [...prevRides, ride]);
-    });
+  const handleReject = async () => {
+        const currentRide = rides[currentRideIndex];
+        try {
+            await axios.put(
+                "http://localhost:4000/api/maps/updateStatus",
+                { rideId: currentRide._id, status: "pending" },
+                { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+            );
 
-    return () => {
-      socket.off("newRide");
+            setCurrentRideIndex((prevIndex) => prevIndex + 1);
+            if (currentRideIndex + 1 >= rides.length) {
+                setRidePopUpPanel(false);
+            }
+        } catch (error) {
+            console.error("Error rejecting ride:", error.message);
+        }
     };
-  }, []);
-
-  const handleAccept = () => {
-    const currentRide = rides[currentRideIndex];
-    onAccept(currentRide);
-    setConfirmRidePopUpPanel(true);
-  };
-
-  const handleReject = () => {
-    setCurrentRideIndex(currentRideIndex + 1); // Go to the next ride
-    if (currentRideIndex + 1 >= rides.length) {
-      setRidePopUpPanel(false); // Close popup if no more rides
+    if (rides.length === 0 || currentRideIndex >= rides.length) {
+        return <div>No pending rides available</div>;
     }
-  };
+
+    const currentRide = rides[currentRideIndex];
+
 
   return (
     <div className=" bg-white z-50 p-5">
@@ -80,14 +135,14 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
               <i className="ri-map-pin-user-fill text-xl"></i>
               <div>
                 <h3 className="text-lg font-medium">{rides[currentRideIndex]?.pickup?.name || "Not Provided"}</h3>
-                <div className="text-sm text-gray-500">{rides[currentRideIndex]?.pickup?.address || "Unknown Address"}</div>
+                <div className="text-sm text-gray-500">{rides[currentRideIndex]?.pickup?.address || "Pickup location"}</div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2 border-b-2">
               <i className="ri-map-pin-2-fill text-xl"></i>
               <div>
                 <h3 className="text-lg font-medium">{rides[currentRideIndex]?.destination?.name || "Not Provided"}</h3>
-                <div className="text-sm text-gray-500">{rides[currentRideIndex]?.destination?.address || "Unknown Address"}</div>
+                <div className="text-sm text-gray-500">{rides[currentRideIndex]?.destination?.address || "Destination location"}</div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2">

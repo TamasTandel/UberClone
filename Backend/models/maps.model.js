@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 const locationSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
+    status: { type: String, enum: ['pending', 'accepted', 'completed'], default: 'pending' },
     username: { type: String, required: true },
     pickup: {
         name: { type: String, required: true },
@@ -23,6 +24,7 @@ const locationSchema = new mongoose.Schema({
     //     lat: { type: Number, required: true },
     //     lng: { type: Number, required: true },
     // },
+
     confirmedAt: { type: Date, default: Date.now }, // When the user confirmed the ride
     
 });

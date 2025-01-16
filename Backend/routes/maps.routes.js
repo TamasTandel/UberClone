@@ -42,9 +42,9 @@ router.post(
 router.get('/latestRide', authMiddleware.authCaptain, mapsController.getLatestRide);
 
 router.get('/getData', authMapAccess, mapsController.getMapData);
-
-// rourouter.get("/getPendingRides", rideController.getPendingRides);
+router.get('/pendingRides', authMapAccess, mapsController.getPendingRides);
 
 router.get('/rides', mapsController.getAllRides);
+router.put('/updateStatus', authMiddleware.authCaptain, mapsController.updateRideStatus);
 
 module.exports = router;

@@ -26,6 +26,7 @@ const Home = () => {
   const [selectedVehicleName, setSelectedVehicleName] = useState("");
   const [vehicleFee, setVehicleFee] = useState(null);
   const [travelTime, setTravelTime] = useState(null);
+  const [captainDetails, setCaptainDetails] = useState(null); // Default value
 
   const mapRef = useRef(null);
   const locationPanelRef = useRef(null);
@@ -213,7 +214,7 @@ const Home = () => {
 
       {/* Waiting for Driver Panel */}
       <div ref={waitingForDriverRef} className="fixed z-20 translate-y-full bottom-0 w-full bg-white p-5">
-        <WaitingForDriver setWaitingForDriver={setWaitingForDriver} />
+        <WaitingForDriver setWaitingForDriver={setWaitingForDriver} captainDetails={captainDetails}/>
       </div>
     </div>
   );

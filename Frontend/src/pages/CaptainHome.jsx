@@ -15,6 +15,7 @@ const CaptainHome = () => {
   const [users, setUsers] = useState([]);
   const [rideRequests, setRideRequests] = useState([]);
   const [selectedRide, setSelectedRide] = useState(null); // Initialize with null or default value.
+  const [selectedLocation, setSelectedLocation] = useState(null); // State for selected location
 
   const captainDetailsRef = useRef(null);
   const ridePopUpPanelRef = useRef(null);
@@ -63,9 +64,11 @@ const CaptainHome = () => {
   };
 
   const handleAcceptRide = (ride) => {
-    setSelectedRide(ride);  // Set the selected ride details
+    setSelectedRide(ride);
+    setSelectedLocation(ride.pickup.coordinates);
     setRidePopUpPanel(false);
-    setConfirmRidePopUpPanel(true);  // Show the Confirm Ride Popup
+    setConfirmRidePopUpPanel(true);
+
   };
 
   return (
@@ -84,7 +87,7 @@ const CaptainHome = () => {
 
       {/* Map Component (Fullscreen) */}
       <div className="absolute top-[10vh] left-0 w-full h-full z-0">
-        <MapComponent users={users} handleSelectUser={handleSelectUser} />
+        <MapComponent users={users} handleSelectUser={handleSelectUser} selectedLocation={selectedLocation} />
       </div>
 
       {/* Ride Pop Up */}

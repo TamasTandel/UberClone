@@ -41,14 +41,14 @@ const ConfirmRidePopUp = ({ selectedRide, setConfirmRidePopUpPanel }) => {
               <i className="ri-map-pin-user-fill text-xl"></i>
               <div>
                 <h3 className="text-lg font-medium">{selectedRide.pickup?.name || "Not Provided"}</h3>
-                <div className="text-sm text-gray-500">{selectedRide.pickup?.address || "Unknown Address"}</div>
+                <div className="text-sm text-gray-500">{selectedRide.pickup?.address || "Pickup location"}</div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2 border-b-2">
               <i className="ri-map-pin-2-fill text-xl"></i>
               <div>
                 <h3 className="text-lg font-medium">{selectedRide.destination?.name || "Not Provided"}</h3>
-                <div className="text-sm text-gray-500">{selectedRide.destination?.address || "Unknown Address"}</div>
+                <div className="text-sm text-gray-500">{selectedRide.destination?.address || "Destination location"}</div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2">

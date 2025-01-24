@@ -9,11 +9,15 @@ const connectToDb = require("./db/db");
 const userRoutes = require("./routes/user.routes");
 const captainRoutes = require("./routes/captian.routes");
 const mapsRoutes = require('./routes/maps.routes');
+const path = require("path");
 
 // Connect to the MongoDB database
 connectToDb();
 
 const app = express();
+
+// Serve static files from the uploads directory
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(cors());
 

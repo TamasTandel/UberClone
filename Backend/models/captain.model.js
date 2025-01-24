@@ -3,84 +3,92 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const captainSchema = new mongoose.Schema({
-    fullname:{
-        firstname:{
+    fullname: {
+        firstname: {
             type: String,
-            require:true,
-            minlength:[3,'first name at least 3 character']
+            required: true,
+            minlength: [3, 'First name must be at least 3 characters']
         },
-        lastname:{
+        lastname: {
             type: String,
-            minlength:[3,'last name at least 3 charcter']
+            minlength: [3, 'Last name must be at least 3 characters']
         }
     },
-    email:{
+    captainname: {
         type: String,
-        require:true,
-        minlength:[5,'email at least 5 charcter'],
-        lowercase:true,
-        unique:true
+        required: true,
+        minlength: [3, 'Captain name must be at least 3 characters']
     },
-    password:{
+    mobile: {
         type: String,
-        require:true,
-        select:false
+        required: true,
+        match: [/^\d{10}$/, 'Mobile number must be 10 digits']
     },
-    socketId:{
-        type:String
+    email: {
+        type: String,
+        required: true,
+        minlength: [5, 'Email must be at least 5 characters'],
+        lowercase: true,
+        unique: true
     },
-    stutus:{
-        type:String,
-        enum:['active','inactive'],
-        default:'inactive',
+    password: {
+        type: String,
+        required: true,
+        select: false
     },
-    vehicle:{
-        color:{
-            type:String,
-            require:true,
-            minlength:[2,'colour name is at least 2 character']
+    profileImage: {
+        type: String, // Store the file path or URL of the captain's image
+        required: false
+    },
+    socketId: {
+        type: String
+    },
+    status: {
+        type: String,
+        enum: ['active', 'inactive', 'riding'],
+        default: 'inactive'
+    },
+    vehicle: {
+        color: {
+            type: String,
+            required: true,
+            minlength: [3, 'Color name must be at least 3 characters']
         },
-        plate:{
-            type:String,
-            require:true,
-            minlength:[3,'plate must at least 3 charcter']
+        plate: {
+            type: String,
+            required: true,
+            minlength: [3, 'Plate must be at least 3 characters']
         },
-        capacity:{
+        capacity: {
             type: Number,
-            require:true,
-
-            min:[1,'capacity must at least 1 passanger']
+            required: true,
+            min: [1, 'Capacity must be at least 1 passenger']
         },
-        vehicleType:{
-            type:String,
-            require:true,
-            enum:['car','auto','motorcycle']
+        vehicleType: {
+            type: String,
+            required: true,
+            enum: ['car', 'auto', 'motorcycle']
         }
     },
-    location:{
-        lat:{
-            type:Number,
-        },
-        lng:{
-            type:Number,
-        }
+    location: {
+        lat: { type: Number },
+        lng: { type: Number }
     }
+}, { timestamps: true });
 
-});
-
-captainSchema.methods.generateAuthToken = function(){
-    const token = jwt.sign({_id: this._id}, process.env.JWT_SECRET,{ expiresIn: '24h' });
+captainSchema.methods.generateAuthToken = function () {
+    const token = jwt.sign({ _id: this._id }, process.env.JWT_SECRET, { expiresIn: '24h' });
     return token;
-}
+};
 
 captainSchema.methods.comparePassword = async function (password) {
-    return await bcrypt.compare(password,this.password);
-}
+    return await bcrypt.compare(password, this.password);
+};
 
 captainSchema.statics.hashPassword = async function (password) {
-    return await bcrypt.hash(password,10);
-}
+    return await bcrypt.hash(password, 10);
+};
 
-const captainModel = mongoose.model('captain',captainSchema);
+const captainModel = mongoose.model('captain', captainSchema);
 
-module.exports= captainModel;
+module.exports = captainModel;

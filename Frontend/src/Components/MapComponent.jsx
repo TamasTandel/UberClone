@@ -144,7 +144,7 @@ const MapComponent = ({ pickup, destination , users, handleSelectUser, selectedL
     );
   };
 
-  return <div id="map" className="h-[70vh] w-full"></div>;
+  return <div id="map" className="h-[90vh] w-full"></div>;
 };
 
 export default MapComponent;

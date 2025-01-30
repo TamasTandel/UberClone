@@ -12,6 +12,7 @@ module.exports.getLocationsByUser = async (userId) => {
 module.exports.saveLocation = async ({
     userId,
     username,
+    phone,
     pickup,
     destination,
     distance,
@@ -19,13 +20,14 @@ module.exports.saveLocation = async ({
     status,
     // userLiveLocation,
 }) => {
-    if (!userId || !username || !pickup || !destination || !distance || !vehicle ) {
+    if (!userId || !username || !pickup || !phone || !destination || !distance || !vehicle ) {
         throw new Error('All fields are required');
     }
 
     const location = await locationModel.create({
         userId,
         username,
+        phone,
         pickup,
         destination,
         distance,

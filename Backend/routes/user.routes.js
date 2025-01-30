@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const multer = require('multer');
-const { body, check } = require('express-validator');
+const { body, validationResult } = require('express-validator');
 const userControllers = require('../controllers/user.controllers');
 const authMiddleware = require('../middlewares/auth.middleware');
 
@@ -52,8 +52,32 @@ router.post(
   userControllers.loginUser
 );
 
+router.put(
+  '/update-status',
+  authMiddleware.authUserOrCaptain, // Middleware to authenticate the user or captain
+  [
+    body('username').notEmpty().withMessage('Username is required'),
+    body('status')
+      .notEmpty()
+      .isIn(['Nothing', 'Looking', 'Waiting', 'Riding'])
+      .withMessage('Invalid status'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    try {
+      await userControllers.updateUserStatus(req, res);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  }
+);
+
 // Profile route
-router.get('/profile', authMiddleware.authUser, userControllers.getUserProfile);
+router.get('/profile', authMiddleware.authUserOrCaptain, userControllers.getUserProfile);
 
 // Logout route
 router.get('/logout', authMiddleware.authUser, userControllers.logoutUser);

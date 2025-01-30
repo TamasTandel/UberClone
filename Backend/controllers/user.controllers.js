@@ -71,7 +71,6 @@ module.exports.registerUser = async (req, res, next) => {
     res.status(201).json({ token, user });
 };
 
-
 module.exports.loginUser = async(req,res,next)=>{
     const errors = validationResult(req);
     if(!errors.isEmpty()){
@@ -104,6 +103,36 @@ module.exports.loginUser = async(req,res,next)=>{
 
     res.status(200).json({token,user});
 }
+
+module.exports.updateUserStatus = async (req, res) => {
+  try {
+    const { username, status } = req.body;
+
+    // Validate the input
+    if (!username || !['Nothing', 'Looking', 'Waiting', 'Riding'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status or username' });
+    }
+
+    // Find the user by username
+    const user = await userModel.findOne({ username });
+
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update the user's status
+    user.status = status;
+    const updatedUser = await user.save(); // Save the updated user document
+
+    res.status(200).json({
+      message: `User status updated to '${status}' successfully.`,
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error('Error updating user status:', error.message);
+    res.status(500).json({ message: 'Internal server error' });
+  }
+};
 
 module.exports.getUserProfile = async (req,res,next)=>{
     res.status(200).json(req.user);

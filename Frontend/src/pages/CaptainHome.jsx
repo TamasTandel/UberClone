@@ -2,29 +2,81 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import CaptainDetails from '../Components/CaptainDetails';
 import RidePopUp from '../Components/RidePopUp';
+import Rideing from '../Components/Rideing';
 import ConfirmRidePopUp from '../Components/ConfirmRidePopUp';
 import MapComponent from '../Components/MapComponent';
 import gsap from 'gsap';
 import { io } from 'socket.io-client';
+import axios from 'axios';
 
 const CaptainHome = () => {
-  const [ridePopUpPanel, setRidePopUpPanel] = useState(true);
+  const [ridePopUpPanel, setRidePopUpPanel] = useState(false);
   const [confirmRidePopUpPanel, setConfirmRidePopUpPanel] = useState(false);
   const [captainDetails, setCaptainDetails] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [users, setUsers] = useState([]);
   const [rideRequests, setRideRequests] = useState([]);
-  const [selectedRide, setSelectedRide] = useState(null); // Initialize with null or default value.
-  const [selectedLocation, setSelectedLocation] = useState(null); // State for selected location
+  const [selectedRide, setSelectedRide] = useState(null);
+  const [selectedLocation, setSelectedLocation] = useState(null);
+  const [captainStatus, setCaptainStatus] = useState(null);
+  const [showRideing, setShowRideing] = useState(false);
+  const [captainName, setCaptainName] = useState("");
+  const [rideData, setRideData] = useState(null);
 
   const captainDetailsRef = useRef(null);
   const ridePopUpPanelRef = useRef(null);
   const confirmRidePopUpPanelRef = useRef(null);
+  const rideingRef = useRef(null);
+
+  const fetchCaptainProfile = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found in localStorage");
+        return null;
+      }
+
+      const response = await axios.get("http://localhost:4000/api/captains/profile", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log("response.data :", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching captain profile:", error.message);
+      return null;
+    }
+  };
+
+  const fetchRideData = async (captainName) => {
+    try {
+      const response = await axios.get(`http://localhost:4000/api/maps/rideByCaptainName/${captainName}`, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      });
+      const rideData = response.data.data;
+      setRideData(rideData);
+      localStorage.setItem('selectedRide', JSON.stringify(rideData));
+      console.log('Fetched ride data:', rideData);
+    } catch (error) {
+      console.error('Error fetching ride data:', error.message);
+    }
+  };
 
   useEffect(() => {
+    const fetchCaptainStatus = async () => {
+      const profileData = await fetchCaptainProfile();
+      if (profileData) {
+        setCaptainStatus(profileData.status);
+        setCaptainName(profileData.captainname);
+        fetchRideData(profileData.captainname);
+      }
+    };
+
+    fetchCaptainStatus();
+
     const socket = io("http://localhost:4000");
 
-    // Listen for ride requests
     socket.on("rideRequest", (rideData) => {
       console.log("New Ride Request Received:", rideData);
       setRideRequests((prevRequests) => [...prevRequests, rideData]);
@@ -35,27 +87,43 @@ const CaptainHome = () => {
 
   useEffect(() => {
     if (ridePopUpPanel) {
-      gsap.to(ridePopUpPanelRef.current, { transform:'translateY(0%)', duration: 0.5 });
+      gsap.to(ridePopUpPanelRef.current, { transform: 'translateY(0%)', duration: 0.5, opacity: 1 });
     } else {
-      gsap.to(ridePopUpPanelRef.current, {transform: 'translateY(100%)', duration: 0.5 });
+      gsap.to(ridePopUpPanelRef.current, { transform: 'translateY(500px)', duration: 0.5, opacity: 0 });
     }
   }, [ridePopUpPanel]);
 
   useEffect(() => {
     if (confirmRidePopUpPanel) {
-      gsap.to(confirmRidePopUpPanelRef.current, { transform: 'translateY(0)', duration: 0.5 });
+      gsap.to(confirmRidePopUpPanelRef.current, { transform: 'translateY(0)', duration: 0.5, opacity: 1 });
     } else {
-      gsap.to(confirmRidePopUpPanelRef.current, { transform: 'translateY(100%)', duration: 0.5 });
+      gsap.to(confirmRidePopUpPanelRef.current, { transform: 'translateY(100%)', duration: 0.5, opacity: 0 });
     }
   }, [confirmRidePopUpPanel]);
 
   useEffect(() => {
-    if (captainDetails) {
-      gsap.to(captainDetailsRef.current, { transform: 'translateY(0)', duration: 0.5 });
+    if (showRideing) {
+      gsap.to(rideingRef.current, { transform: 'translateY(0)', duration: 0.5, opacity: 1 });
     } else {
-      gsap.to(captainDetailsRef.current, { transform: 'translateY(100%)', duration: 0.5 });
+      gsap.to(rideingRef.current, { transform: 'translateY(200%)', duration: 0.5, opacity: 0 });
     }
-  }, [captainDetails]);
+  }, [showRideing]);
+
+  useEffect(() => {
+    if (captainStatus === 'inactive') {
+      setRidePopUpPanel(true);
+      setConfirmRidePopUpPanel(false);
+      setShowRideing(false);
+    } else if (captainStatus === 'active') {
+      setRidePopUpPanel(false);
+      setConfirmRidePopUpPanel(true);
+      setShowRideing(false);
+    } else if (captainStatus === 'riding') {
+      setRidePopUpPanel(false);
+      setConfirmRidePopUpPanel(false);
+      setShowRideing(true);
+    }
+  }, [captainStatus]);
 
   const handleSelectUser = (user) => {
     setSelectedUser(user);
@@ -68,29 +136,25 @@ const CaptainHome = () => {
     setSelectedLocation(ride.pickup.coordinates);
     setRidePopUpPanel(false);
     setConfirmRidePopUpPanel(true);
-
   };
 
   return (
     <div className="h-screen relative">
-      {/* Header */}
       <div className="fixed bg-white flex justify-between w-full z-10">
         <img
           className="w-28"
           src="https://cdn-assets-us.frontify.com/s3/frontify-enterprise-files-us/eyJwYXRoIjoicG9zdG1hdGVzXC9hY2NvdW50c1wvODRcLzQwMDA1MTRcL3Byb2plY3RzXC8yN1wvYXNzZXRzXC9lZFwvNTUwOVwvNmNmOGVmM2YzMjFkMTA3YThmZGVjNjY1NjJlMmVmMzctMTYyMDM3Nzc0OC5haSJ9:postmates:9KZWqmYNXpeGs6pQy4UCsx5EL3qq29lhFS6e4ZVfQrs?width=2400"
           alt=""
         />
-        <Link className="flex h-10 w-10 m-4 bg-white items-center justify-center rounded-full text-2xl font-semibold" to={'/home'}>
+        <Link className="flex h-10 w-10 m-4 bg-white items-center justify-center rounded-full text-2xl font-semibold" to={'/captain-home'}>
           <i className="ri-logout-box-r-line"></i>
         </Link>
       </div>
 
-      {/* Map Component (Fullscreen) */}
       <div className="absolute top-[10vh] left-0 w-full h-full z-0">
         <MapComponent users={users} handleSelectUser={handleSelectUser} selectedLocation={selectedLocation} />
       </div>
 
-      {/* Ride Pop Up */}
       <div ref={ridePopUpPanelRef} className="fixed w-full z-50 bottom-0 translate-y-full px-3 pt-12 overflow-y-auto bg-white">
         <RidePopUp
           selectedUser={selectedUser}
@@ -98,36 +162,23 @@ const CaptainHome = () => {
           setRidePopUpPanel={setRidePopUpPanel}
           setConfirmRidePopUpPanel={setConfirmRidePopUpPanel}
           setSelectedRide={setSelectedRide}
-          onAccept={handleAcceptRide}  // Pass the handler for accepting the ride
+          onAccept={handleAcceptRide}
         />
       </div>
 
-      {/* Confirm Ride Pop Up */}
       <div ref={confirmRidePopUpPanelRef} className="fixed w-full z-20 bottom-0 translate-y-full px-3 py-10 pt-12 bg-white">
-        <ConfirmRidePopUp selectedUser={selectedUser} setConfirmRidePopUpPanel={setConfirmRidePopUpPanel} setRidePopUpPanel={setRidePopUpPanel} selectedRide={selectedRide} />
+        <ConfirmRidePopUp 
+          selectedUser={selectedUser} 
+          setConfirmRidePopUpPanel={setConfirmRidePopUpPanel} 
+          setRidePopUpPanel={setRidePopUpPanel} 
+          selectedRide={selectedRide} 
+          captainName={captainName}
+          rideData={rideData}
+        />
       </div>
-
-      {/* Render Ride Requests */}
-      <div className="absolute top-16 right-0 p-4 shadow-lg rounded-lg max-h-[400px] overflow-y-auto">
-        {rideRequests.map((request, index) => (
-          <div key={index} className="mb-4 p-2 border rounded-lg">
-            <h3 className="font-semibold">Ride Request from {request.username}</h3>
-            <p>Pickup: {request.pickup.name}</p>
-            <p>Destination: {request.destination.name}</p>
-            <p>Distance: {request.distance} km</p>
-            <p>Fee: ${request.vehicle.fee}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Bottom Panel */}
-      <div className="h-[20vh] bottom-0 absolute w-full px-6 bg-yellow-400 flex items-center justify-center text-center">
-        <button
-          className="w-full flex text-xl bg-green-700 text-white items-center justify-center p-2 rounded-lg font-semibold"
-          onClick={() => { setRidePopUpPanel(true); }}
-        >
-          Choose Your Ride
-        </button>
+      
+      <div ref={rideingRef} className="fixed w-full z-20 bottom-0 translate-y-full px-3 py-10 pt-12 bg-white">
+        <Rideing selectedRide={selectedRide} captainStatus={captainStatus}/>
       </div>
     </div>
   );

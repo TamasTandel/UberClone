@@ -38,7 +38,7 @@ const userSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Looking', 'Waiting', 'Riding', 'Nothing'], // Restricted to these statuses
+        enum: [ 'Nothing', 'Looking', 'Waiting', 'Riding'], // Restricted to these statuses
         default: 'Nothing', // Default status
     },
     socketId: {

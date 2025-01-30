@@ -47,6 +47,7 @@ const submitHandler = async (e) => {
     );
 
     // Success: Update the user context and navigate
+    localStorage.setItem('token', response.data.token);
     setUser(response.data.user);
     navigate('/home'); // Redirect to dashboard or another page on success
 

@@ -38,7 +38,7 @@ router.post('/login', [
 
 router.get('/profile', authMiddleware.authCaptain, captainController.getCaptainProfile);
 
-router.patch('/status', authMiddleware.authCaptain, captainController.updateCaptainStatus);
+router.put('/status', authMiddleware.authCaptain, captainController.updateCaptainStatus);
 
 router.get('/logout', authMiddleware.authCaptain, captainController.logoutCaptain);
 

@@ -20,6 +20,7 @@ const ConfirmRide = ({
   const [userProfile, setUserProfile] = useState({
     fullname: { firstname: "", lastname: "" },
     userId: "",
+    mobile: "", // Add mobile to userProfile state
   });
   
   useEffect(() => {
@@ -29,8 +30,9 @@ const ConfirmRide = ({
         if (!token) {
           console.error("No token found in localStorage");
           setUserProfile({
-            fullname: { firstname: "Guest", lastname: "" },
+            username: username,
             userId: "unknown",
+            mobile: "", // Set default mobile
           });
           return;
         }
@@ -42,14 +44,16 @@ const ConfirmRide = ({
         });
 
         setUserProfile({
-          fullname: response.data.fullname,
+          username: response.data.username,
           userId: response.data._id,
+          mobile: response.data.mobile, // Store mobile number
         });
       } catch (error) {
         console.error("Error fetching user profile:", error);
         setUserProfile({
-          fullname: { firstname: "Guest", lastname: "" },
+          username: username,
           userId: "unknown",
+          mobile: "", // Set default mobile
         });
       }
     };
@@ -57,73 +61,90 @@ const ConfirmRide = ({
     fetchUserProfile();
   }, []); 
 
-  const handleConfirm = async () => {
-    if (!pickupLocation || !destinationLocation) {
-      alert("Please ensure both pickup and destination locations are available!");
-      return;
-    } 
+const handleConfirm = async () => {
+  if (!pickupLocation || !destinationLocation) {
+    alert("Please ensure both pickup and destination locations are available!");
+    return;
+  }
 
-    if (vehicleFee === null || vehicleFee === undefined) {
-      alert("Vehicle fee has not been calculated!");
-      return;
-    }
+  if (vehicleFee === null || vehicleFee === undefined) {
+    alert("Vehicle fee has not been calculated!");
+    return;
+  }
 
-    if (!travelTime) {
-      alert("Travel time is not available!");
-      return;
-    }
+  if (!travelTime) {
+    alert("Travel time is not available!");
+    return;
+  }
 
-    setIsSubmitting(true);
+  setIsSubmitting(true);
 
-    // Data to send to the backend
-    const rideData = {
-      userId: userProfile.userId, // Use the fetched userId
-      username: `${userProfile.fullname.firstname} ${userProfile.fullname.lastname}`,
-      pickup: {
-        name: pickupLocation.name,
-        lat: pickupLocation.lat,
-        lng: pickupLocation.lng,
-      },
-      destination: {
-        name: destinationLocation.name,
-        lat: destinationLocation.lat,
-        lng: destinationLocation.lng,
-      },
-      distance: routeDistance,
-      vehicle: {
-        fee: vehicleFee,
-        estimatedTime: travelTime,
-      },
-    };
+  // Data to send to the backend
+  const rideData = {
+    userId: userProfile.userId,
+    username: userProfile.username,
+    phone: userProfile.mobile, // Include mobile number
+    pickup: {
+      name: pickupLocation.name,
+      lat: pickupLocation.lat,
+      lng: pickupLocation.lng,
+    },
+    destination: {
+      name: destinationLocation.name,
+      lat: destinationLocation.lat,
+      lng: destinationLocation.lng,
+    },
+    profileImage: userProfile.profileImage,
+    distance: routeDistance,
+    vehicle: {
+      fee: vehicleFee,
+      estimatedTime: travelTime,
+      image: selectedVehicleImage,
+    },
+  };
 
-    console.log("Ride Data: ", rideData);
+  try {
+    const response = await axios.post(
+      "http://localhost:4000/api/maps/save",
+      rideData,
+      {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+      }
+    );
 
-    try {
-      // Send data to backend
-      const response = await axios.post(
-        "http://localhost:4000/api/maps/save",
-        rideData,
+    if (response.status === 201) {
+      alert("Ride confirmed and data saved successfully!");
+      localStorage.setItem("rideData", JSON.stringify(rideData));
+      const statusUpdateResponse = await axios.put(
+        "http://localhost:4000/api/users/update-status",
+        { username: userProfile.username, status: "Looking" },
         {
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         }
       );
-
-      if (response.status === 201) {
-        alert("Ride confirmed and data saved successfully!");
+      if (statusUpdateResponse.status === 200) {
+        console.log("User status updated to 'Looking':", statusUpdateResponse.data);
         setVehicleFound(true);
         setConfirmRidePanel(false);
+        window.location.reload();
+
       } else {
-        alert("Failed to save ride details. Please try again.");
+        alert("Failed to update user status.");
       }
-    } catch (error) {
-      console.error("Error saving ride details:", error);
-      alert("An error occurred while saving the ride details.");
-    } finally {
-      setIsSubmitting(false);
+    } else {
+      alert("Failed to save ride details. Please try again.");
     }
-  };
+  } catch (error) {
+    console.error("Error:", error);
+    alert(`An error occurred while confirming the ride: ${error.response?.data?.message || error.message}`);
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   return (
     <div className="z-50">
@@ -157,7 +178,7 @@ const ConfirmRide = ({
             <i className="ri-user-line text-xl"></i>
             <div>
               <h3 className="text-lg font-medium">
-                {`Rider: ${userProfile.fullname.firstname} ${userProfile.fullname.lastname}`}
+                {`Rider: ${userProfile.username}`}
               </h3>
             </div>
           </div>

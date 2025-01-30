@@ -1,8 +1,8 @@
-const userModel = require('../models/user.model');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const blackListTokenModel = require('../models/blacklistingToken.model');
 const captainModel = require('../models/captain.model');
+const userModel = require('../models/user.model');
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
@@ -111,4 +111,27 @@ module.exports.authMapAccess = async (req, res, next) => {
         console.error('AuthMapAccess Error:', err);
         res.status(500).json({ message: 'Server error' });
     }
+};
+
+module.exports.authUserOrCaptain = async (req, res, next) => {
+  const token = req.header('Authorization').replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ message: 'No token provided' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    let user = await userModel.findById(decoded._id);
+    let captain = await captainModel.findById(decoded._id);
+
+    if (!user && !captain) {
+      return res.status(401).json({ message: 'Invalid token' });
+    }
+
+    req.user = user || captain;
+    req.role = user ? 'user' : 'captain';
+    next();
+  } catch (error) {
+    res.status(401).json({ message: 'Unauthorized' });
+  }
 };

@@ -39,12 +39,14 @@ router.post(
 );
 
 // Route to get the latest ride for the captain
-router.get('/latestRide', authMiddleware.authCaptain, mapsController.getLatestRide);
-
-router.get('/getData', authMapAccess, mapsController.getMapData);
+router.get('/latestRide', mapsController.getLatestRide);
 router.get('/pendingRides', authMapAccess, mapsController.getPendingRides);
 
+router.get('/getData', authMapAccess, mapsController.getMapData);
+// router.get('/ride/:userId', authMiddleware.authUserOrCaptain, mapsControllers.getRideData);
+
 router.get('/rides', mapsController.getAllRides);
-router.put('/updateStatus', authMiddleware.authCaptain, mapsController.updateRideStatus);
+router.put('/updateRideData', authMiddleware.authUserOrCaptain, mapsController.updateRideData);
+router.get('/rideByCaptainName/:captainname', authMiddleware.authCaptain, mapsController.getRideByCaptainName);
 
 module.exports = router;

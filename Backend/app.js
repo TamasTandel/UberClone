@@ -1,3 +1,4 @@
+const mongoose = require('mongoose');
 const dotenv = require("dotenv");
 dotenv.config();  // Load environment variables from .env file
 
@@ -10,6 +11,8 @@ const userRoutes = require("./routes/user.routes");
 const captainRoutes = require("./routes/captian.routes");
 const mapsRoutes = require('./routes/maps.routes');
 const path = require("path");
+const otpRoutes = require('./routes/otp.routes');
+const User = require('./models/user.model'); // Import the User model
 
 // Connect to the MongoDB database
 connectToDb();
@@ -27,7 +30,6 @@ app.use(cors({
   credentials: true
 }));
 
-
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -44,6 +46,7 @@ app.get("/", (req, res) => {
 });
 
 // API Routes
+app.use('/api', otpRoutes);
 app.use("/api/users", userRoutes);  // Use `/api/users` for user-related routes
 app.use("/api/captains", captainRoutes);  // Use `/api/captains` for captain-related routes
 app.use("/api/maps", mapsRoutes);  // Use `/api/maps` for maps-related routes (for storing locations)

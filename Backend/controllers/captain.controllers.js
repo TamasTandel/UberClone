@@ -90,9 +90,9 @@ module.exports.loginCaptain = async (req, res, next) => {
     res.status(200).json({ token, captain });
 };
 
-module.exports.getCaptainProfile = async (req, res, next) => {
-    res.status(200).json({ captain: req.captain });
-};
+module.exports.getCaptainProfile = async (req,res,next)=>{
+    res.status(200).json(req.captain);
+}
 
 module.exports.updateCaptainStatus = async (req, res, next) => {
     const { status } = req.body;
@@ -101,13 +101,16 @@ module.exports.updateCaptainStatus = async (req, res, next) => {
         return res.status(400).json({ message: 'Invalid status' });
     }
 
+    try {
     const captain = await captainModel.findByIdAndUpdate(
         req.captain._id,
         { status },
         { new: true }
     );
-
     res.status(200).json({ message: 'Status updated successfully', captain });
+    } catch (error) {
+        res.status(500).json({ message: 'Error updating status', error: error.message });
+    }
 };
 
 module.exports.logoutCaptain = async (req, res, next) => {

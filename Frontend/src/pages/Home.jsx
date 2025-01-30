@@ -7,6 +7,7 @@ import ConfirmRide from '../Components/ConfirmRide';
 import WaitingForDriver from '../Components/WaitingForDriver';
 import LookinngForDriver from '../Components/LookinngForDriver';
 import MapComponent from '../Components/MapComponent';
+import { Link } from 'react-router-dom';
 
 const Home = () => {
   const [pickup, setPickup] = useState(null);
@@ -27,6 +28,8 @@ const Home = () => {
   const [vehicleFee, setVehicleFee] = useState(null);
   const [travelTime, setTravelTime] = useState(null);
   const [captainDetails, setCaptainDetails] = useState(null); // Default value
+  const [userStatus, setUserStatus] = useState(""); // New state for user status
+  const [userId, setUserId] = useState(""); // New state for user ID
 
   const mapRef = useRef(null);
   const locationPanelRef = useRef(null);
@@ -36,18 +39,16 @@ const Home = () => {
   const waitingForDriverRef = useRef(null);
 
   useEffect(() => {
-  if (pickup && destination) {
-    // Update both pickupLocation and destinationLocation
-    setPickupLocation(pickup);
-    setDestinationLocation(destination);
-    setVehiclePanel(true);  
-    gsap.to(locationPanelRef.current, {
-        opacity: 1,
-        duration: 0.5,
-      });
-  }
-}, [pickup, destination]);
-
+    if (pickup && destination) {
+      setPickupLocation(pickup);
+      setDestinationLocation(destination);
+      setVehiclePanel(true);  
+      gsap.to(locationPanelRef.current, {
+          opacity: 1,
+          duration: 0.5,
+        });
+    }
+  }, [pickup, destination]);
 
   const updateLocation = (location, type) => {
     if (type === 'pickup') {
@@ -57,29 +58,92 @@ const Home = () => {
     }
   };
 
-  // Animations
+  // Fetch user status from the database
   useEffect(() => {
-    if (isLocationsSelected) {
-      gsap.to(locationPanelRef.current, {
-        duration: 0.5,
-      });
-    } else {
+    const fetchUserStatus = async () => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found in localStorage");
+          return;
+        }
+
+        const response = await axios.get("http://localhost:4000/api/users/profile", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setUserStatus(response.data.status);
+        console.log("response.data", response.data);
+        console.log("response.data.status", response.data.status);
+
+        const username = response.data.username; // Extract username from profile response
+        localStorage.setItem("username", username); // Store username in localStorage
+
+        if (response.data.status === "Nothing") {
+          setIsLocationsSelected(true);
+        } else if (response.data.status === "Looking") {
+          setVehicleFound(true);
+        } else if (response.data.status === "Waiting") {
+          setWaitingForDriver(true);
+          fetchRideDetails(username); // Fetch ride details if status is "Waiting"
+        }
+      } catch (error) {
+        console.error("Error fetching user status:", error);
+      }
+    };
+
+    const fetchRideDetails = async (username) => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found in localStorage");
+          return;
+        }
+
+        console.log('Fetching ride details for username:', username);
+
+        const response = await axios.get(`http://localhost:4000/api/maps/latestRide?username=${username}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setCaptainDetails(response.data);
+        console.log('Ride Details:', response.data);
+      } catch (error) {
+        console.error("Error fetching ride details:", error.response ? error.response.data : error.message);
+      }
+    };
+
+    fetchUserStatus();
+  }, []);
+
+  useEffect(() => {
+    if (isLocationsSelected && locationPanelRef.current) {
       gsap.to(locationPanelRef.current, {
         translateY: '0%',
         opacity: 1,
+        duration: 0.5,
+      });
+    } else if (locationPanelRef.current) {
+      gsap.to(locationPanelRef.current, {
+        translateY: '100%',
+        opacity: 0,
         duration: 0.5,
       });
     }
   }, [isLocationsSelected]);
 
   useEffect(() => {
-    if (vehiclePanel) {
+    if (vehiclePanel && vehiclePanelRef.current) {
       gsap.to(vehiclePanelRef.current, {
         transform: 'translateY(0)',
         opacity: 1,
         duration: 0.5,
       });
-    } else {
+    } else if (vehiclePanelRef.current) {
       gsap.to(vehiclePanelRef.current, {
         transform: 'translateY(200%)',
         opacity: 0,
@@ -89,13 +153,13 @@ const Home = () => {
   }, [vehiclePanel]);
 
   useEffect(() => {
-    if (confirmRidePanel) {
+    if (confirmRidePanel && confirmRidePanelRef.current) {
       gsap.to(confirmRidePanelRef.current, {
         transform: 'translateY(0)',
         opacity: 1,
         duration: 0.5,
       });
-    } else {
+    } else if (confirmRidePanelRef.current) {
       gsap.to(confirmRidePanelRef.current, {
         transform: 'translateY(200%)',
         opacity: 0,
@@ -105,13 +169,13 @@ const Home = () => {
   }, [confirmRidePanel]);
 
   useEffect(() => {
-    if (vehicleFound) {
+    if (vehicleFound && vehicleFoundRef.current) {
       gsap.to(vehicleFoundRef.current, {
         transform: 'translateY(0)',
         opacity: 1,
         duration: 0.5,
       });
-    } else {
+    } else if (vehicleFoundRef.current) {
       gsap.to(vehicleFoundRef.current, {
         transform: 'translateY(200%)',
         zIndex:'0',
@@ -122,13 +186,13 @@ const Home = () => {
   }, [vehicleFound]);
 
   useEffect(() => {
-    if (waitingForDriver) {
+    if (waitingForDriver && waitingForDriverRef.current) {
       gsap.to(waitingForDriverRef.current, {
         transform: 'translateY(0)',
         opacity: 1,
         duration: 0.5,
       });
-    } else {
+    } else if (waitingForDriverRef.current) {
       gsap.to(waitingForDriverRef.current, {
         transform: 'translateY(200%)',
         opacity: 0,
@@ -136,11 +200,20 @@ const Home = () => {
       });
     }
   }, [waitingForDriver]);
-  
 
   return (
     <div className="h-screen relative overflow-hidden">
       {/* Map component with z-index to stay behind */}
+      <div className="fixed bg-white flex justify-between w-full z-10">
+        <img
+          className="w-28"
+          src="https://cdn-assets-us.frontify.com/s3/frontify-enterprise-files-us/eyJwYXRoIjoicG9zdG1hdGVzXC9hY2NvdW50c1wvODRcLzQwMDA1MTRcL3Byb2plY3RzXC8yN1wvYXNzZXRzXC9lZFwvNTUwOVwvNmNmOGVmM2YzMjFkMTA3YThmZGVjNjY1NjJlMmVmMzctMTYyMDM3Nzc0OC5haSJ9:postmates:9KZWqmYNXpeGs6pQy4UCsx5EL3qq29lhFS6e4ZVfQrs?width=2400"
+          alt=""
+        />
+        <Link className="flex h-10 w-10 m-4 bg-white items-center justify-center rounded-full text-2xl font-semibold" to={'/home'}>
+          <i className="ri-logout-box-r-line"></i>
+        </Link>
+      </div>
       <div className="absolute top-0 left-0 w-full h-full z-0">
         <MapComponent
           route={route}
@@ -153,69 +226,74 @@ const Home = () => {
         />
       </div>
 
-      {/* Location Panel */}
-      <div className="flex flex-col justify-end absolute h-screen top-0 w-full z-0">
-        <div
-          ref={locationPanelRef}
-          className="absolute bg-white w-full bottom-0 transition-all duration-300 z-0"
-        >
-          <LocationSearchPanel
-            pickup={pickup}
-            destination={destination}
-            setPickup={setPickup}
-            setDestination={setDestination}
-          />
+      {userStatus === "Nothing" && (
+        <div className="flex flex-col justify-end absolute h-screen top-0 w-full z-0">
+          <div
+            ref={locationPanelRef}
+            className="absolute bg-white w-full bottom-0 transition-all duration-300 z-0"
+          >
+            <LocationSearchPanel
+              pickup={pickup}
+              destination={destination}
+              setPickup={setPickup}
+              setDestination={setDestination}
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Vehicle Panel */}
-        <div ref={vehiclePanelRef} className="fixed z-20 bottom-0 translate-y-full w-full p-5 bg-white">
-          <VehiclePanel
-            pickupLocation={pickupLocation}
-            destinationLocation={destinationLocation}
-            setVehiclePanel={setVehiclePanel}
-            setConfirmRidePanel={setConfirmRidePanel}
-            setSelectedVehicle={setSelectedVehicle}
-            userToken={userToken}
-            setSelectedVehicleImage={setSelectedVehicleImage}
-            setFee={setVehicleFee} 
-            setTravelTime={setTravelTime} 
-            setRouteDistance={setRouteDistance}
-            setSelectedVehicleName={setSelectedVehicleName}
-          />
-        </div>
-
-        {/* Confirm Ride Panel */}
-        <div ref={confirmRidePanelRef} className="fixed z-20 bottom-0 translate-y-full w-full bg-white p-5">
-          <ConfirmRide
-            setConfirmRidePanel={setConfirmRidePanel}
-            setVehicleFound={setVehicleFound}
-            selectedVehicleImage={selectedVehicleImage}
-            selectedVehicleName={selectedVehicleName} 
-            pickupLocation={pickupLocation}
-            destinationLocation={destinationLocation}
-            vehicleFee={vehicleFee} // Fee for the selected vehicle
-            travelTime={travelTime} // Travel time for the selected vehicle
-            routeDistance={routeDistance}
-          />
-        </div>
-
-      {/* Vehicle Found Panel */}
-      <div ref={vehicleFoundRef} className="fixed z-30 bottom-0 translate-y-full w-full bg-white p-5">
-        <LookinngForDriver
-          setVehicleFound={setVehicleFound}
-          selectedVehicleImage={selectedVehicleImage}
+      <div ref={vehiclePanelRef} className="fixed z-20 bottom-0 translate-y-full w-full p-5 bg-white">
+        <VehiclePanel
           pickupLocation={pickupLocation}
           destinationLocation={destinationLocation}
-          vehicleFee={vehicleFee}
-          travelTime={travelTime}
+          setVehiclePanel={setVehiclePanel}
+          setConfirmRidePanel={setConfirmRidePanel}
+          setSelectedVehicle={setSelectedVehicle}
+          userToken={userToken}
+          setSelectedVehicleImage={setSelectedVehicleImage}
+          setFee={setVehicleFee} 
+          setTravelTime={setTravelTime} 
+          setRouteDistance={setRouteDistance}
+          setSelectedVehicleName={setSelectedVehicleName}
         />
       </div>
 
-      {/* Waiting for Driver Panel */}
-      <div ref={waitingForDriverRef} className="fixed z-20 translate-y-full bottom-0 w-full bg-white p-5">
-        <WaitingForDriver setWaitingForDriver={setWaitingForDriver} captainDetails={captainDetails}/>
+      {/* Confirm Ride Panel */}
+      <div ref={confirmRidePanelRef} className="fixed z-20 bottom-0 translate-y-full w-full bg-white p-5">
+        <ConfirmRide
+          setConfirmRidePanel={setConfirmRidePanel}
+          setVehicleFound={setVehicleFound}
+          selectedVehicleImage={selectedVehicleImage}
+          selectedVehicleName={selectedVehicleName} 
+          pickupLocation={pickupLocation}
+          destinationLocation={destinationLocation}
+          vehicleFee={vehicleFee} // Fee for the selected vehicle
+          travelTime={travelTime} // Travel time for the selected vehicle
+          routeDistance={routeDistance}
+        />
       </div>
+
+      {/* Conditionally Render Panels Based on User Status */}
+
+      {userStatus === "Looking" && (
+        <div ref={vehicleFoundRef} className="fixed z-30 bottom-0 translate-y-full w-full bg-white p-5">
+          <LookinngForDriver
+            setVehicleFound={setVehicleFound}
+            selectedVehicleImage={selectedVehicleImage}
+            pickupLocation={pickupLocation}
+            destinationLocation={destinationLocation}
+            vehicleFee={vehicleFee}
+            travelTime={travelTime}
+          />
+        </div>
+      )}
+
+    {userStatus === "Waiting" && (
+      <div ref={waitingForDriverRef} className="fixed z-20 translate-y-full bottom-0 w-full bg-white p-5">
+        <WaitingForDriver captainDetails={captainDetails} />
+      </div>
+    )}
     </div>
   );
 };

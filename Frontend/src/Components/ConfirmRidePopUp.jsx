@@ -1,16 +1,76 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import axios from 'axios';
 
-const ConfirmRidePopUp = ({ selectedRide, setConfirmRidePopUpPanel }) => {
+const ConfirmRidePopUp = ({ setConfirmRidePopUpPanel, rideData }) => {
   const [otp, setOtp] = useState("");
+  const [phone, setPhone] = useState("");
+  const [rideDetails, setRideDetails] = useState(null);
 
   useEffect(() => {
-    console.log("Selected Ride: ", selectedRide);
-  }, [selectedRide]);
+    const rideDataFromStorage = localStorage.getItem('selectedRide');
+    if (rideDataFromStorage) {
+      const parsedRide = JSON.parse(rideDataFromStorage);
+      setRideDetails(parsedRide);
+      setPhone(parsedRide.phone);
+      console.log('Ride data from localStorage:', parsedRide); // Log the data
+    } else if (rideData) {
+      setRideDetails(rideData);
+      setPhone(rideData.phone);
+      localStorage.setItem('selectedRide', JSON.stringify(rideData));
+      console.log('Ride data from parent:', rideData); // Log the data
+    } else {
+      // Fetch from database if no data in localStorage or from parent
+      const fetchRideData = async () => {
+        try {
+          const response = await axios.get('http://localhost:4000/api/maps/rideByCaptainName/someCaptainName', {
+            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+          });
+          const fetchedRideData = response.data.data;
+          setRideDetails(fetchedRideData);
+          setPhone(fetchedRideData.phone);
+          localStorage.setItem('selectedRide', JSON.stringify(fetchedRideData));
+          console.log('Fetched ride data from database:', fetchedRideData); // Log the data
+        } catch (error) {
+          console.error('Error fetching ride data:', error.message);
+        }
+      };
 
-  const submitHandler = (e) => {
+      fetchRideData();
+    }
+  }, [rideData]);
+
+  const maskPhoneNumber = (phone) => {
+    return phone.replace(/.(?=.{4})/g, 'X');
+  };
+
+  const sendOtpHandler = async () => {
+    try {
+      await axios.post('http://localhost:4000/api/send-otp', { phone });
+      alert('OTP sent successfully');
+    } catch (error) {
+      console.error('Error sending OTP:', error);
+    }
+  };
+
+  const submitHandler = async (e) => {
     e.preventDefault();
-    // OTP validation can be added here if needed
+    try {
+      // First, verify the OTP
+      await axios.post('http://localhost:4000/api/verify-otp', { phone, otp });
+      alert('OTP verified successfully');
+
+      // Then, update captain status to "riding"
+      await axios.put('http://localhost:4000/api/captains/status', 
+        { status: 'riding' }, 
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      alert('Captain status updated to riding');
+      window.location.reload();
+      // Proceed with ride confirmation logic here
+    } catch (error) {
+      console.error('Error verifying OTP or updating status:', error.response?.data?.message || error.message);
+      alert('Invalid OTP or error updating status');
+    }
   };
 
   return (
@@ -22,7 +82,7 @@ const ConfirmRidePopUp = ({ selectedRide, setConfirmRidePopUpPanel }) => {
         <i className="ri-arrow-down-wide-line"></i>
       </h5>
       <h3 className="text-2xl font-bold p-5">Confirm this ride to start</h3>
-      {selectedRide && (
+      {rideDetails && (
         <>
           <div className="flex w-full items-center justify-between bg-yellow-300 rounded-full p-2">
             <div className="flex items-center gap-4">
@@ -31,30 +91,30 @@ const ConfirmRidePopUp = ({ selectedRide, setConfirmRidePopUpPanel }) => {
                 src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6"
                 alt=""
               />
-              <h4 className="text-lg font-bold">{selectedRide.username || "Unknown User"}</h4>
+              <h4 className="text-lg font-bold">{rideDetails.username || "Unknown User"}</h4>
             </div>
-            <h5 className="text-lg font-bold mr-3">{selectedRide.distance || "N/A"} km</h5>
+            <h5 className="text-lg font-bold mr-3">{rideDetails.distance || "N/A"} km</h5>
           </div>
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-5 p-2 border-b-2">
               <i className="ri-map-pin-user-fill text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">{selectedRide.pickup?.name || "Not Provided"}</h3>
-                <div className="text-sm text-gray-500">{selectedRide.pickup?.address || "Pickup location"}</div>
+                <h3 className="text-lg font-medium">{rideDetails.pickup?.name || "Not Provided"}</h3>
+                <div className="text-sm text-gray-500">{rideDetails.pickup?.address || "Pickup location"}</div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2 border-b-2">
               <i className="ri-map-pin-2-fill text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">{selectedRide.destination?.name || "Not Provided"}</h3>
-                <div className="text-sm text-gray-500">{selectedRide.destination?.address || "Destination location"}</div>
+                <h3 className="text-lg font-medium">{rideDetails.destination?.name || "Not Provided"}</h3>
+                <div className="text-sm text-gray-500">{rideDetails.destination?.address || "Destination location"}</div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2">
               <i className="ri-currency-line text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">${selectedRide.vehicle?.fee || "0.00"}</h3>
+                <h3 className="text-lg font-medium">${rideDetails.vehicle?.fee || "0.00"}</h3>
                 <div className="text-sm text-gray-500">Cash</div>
               </div>
             </div>
@@ -62,6 +122,11 @@ const ConfirmRidePopUp = ({ selectedRide, setConfirmRidePopUpPanel }) => {
         </>
       )}
 
+      {phone && (
+        <div className="mt-4 p-4 text-xl ">
+          <p>Sending OTP to: {maskPhoneNumber(phone)}</p>
+        </div>
+      )}
       <form className="w-full p-4" onSubmit={submitHandler}>
         <input
           value={otp}
@@ -70,6 +135,13 @@ const ConfirmRidePopUp = ({ selectedRide, setConfirmRidePopUpPanel }) => {
           type="number"
           placeholder="Enter OTP"
         />
+        <button
+          type="button"
+          onClick={sendOtpHandler}
+          className="w-full bg-blue-600 text-white font-semibold rounded-lg p-2 text-lg mt-2"
+        >
+          Send OTP
+        </button>
         <div className="flex w-full gap-2 mt-5">
           <button
             onClick={() => setConfirmRidePopUpPanel(false)}
@@ -77,12 +149,12 @@ const ConfirmRidePopUp = ({ selectedRide, setConfirmRidePopUpPanel }) => {
           >
             Cancel
           </button>
-          <Link
-            to="/captain-riding"
-            className="w-full flex items-center justify-center bg-green-700 text-white font-semibold rounded-lg p-2 text-lg"
+          <button
+            type="submit"
+            className="w-full bg-green-700 text-white font-semibold rounded-lg p-2 text-lg"
           >
             Confirm
-          </Link>
+          </button>
         </div>
       </form>
     </div>

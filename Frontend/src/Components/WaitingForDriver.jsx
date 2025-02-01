@@ -18,8 +18,8 @@ const WaitingForDriver = ({ captainDetails }) => {
         <div className="flex flex-col gap-2 justify-between items-center">
           <div className="flex justify-between w-full items-center">
             <img
-              className="h-20"
-              src={ride?.captain?.profileImage || "https://via.placeholder.com/100"}
+              className="h-20 object-cover rounded-full"
+              src={`http://localhost:4000/${ride?.captain?.profileImage}` || "https://via.placeholder.com/100"}
               alt="Captain"
             />
             <div className="text-right">

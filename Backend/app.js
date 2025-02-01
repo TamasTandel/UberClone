@@ -22,12 +22,13 @@ const app = express();
 // Serve static files from the uploads directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-app.use(cors());
+// app.use(cors());
 
 app.use(cors({
   origin: "http://localhost:5173", // Frontend URL
-  methods: "GET,POST,PUT,DELETE",
-  credentials: true
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true,
+  allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
 }));
 
 app.use(express.json());

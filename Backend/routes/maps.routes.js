@@ -17,7 +17,6 @@ router.get(
     mapsController.getLocationsByUser
 );
 
-// Route to save location with validation and authentication
 router.post(
     '/save',
     authMiddleware.authUser,
@@ -29,11 +28,9 @@ router.post(
         body('destination.lat').isNumeric().withMessage('Destination latitude is required'),
         body('destination.lng').isNumeric().withMessage('Destination longitude is required'),
         body('distance').isNumeric().withMessage('Distance is required'),
-        // body('vehicle.name').notEmpty().withMessage('Vehicle name is required'),
         body('vehicle.fee').isNumeric().withMessage('Vehicle fee is required'),
         body('vehicle.estimatedTime').notEmpty().withMessage('Vehicle estimated time is required'),
-        // body('userLiveLocation.lat').isNumeric().withMessage('User live location latitude is required'),
-        // body('userLiveLocation.lng').isNumeric().withMessage('User live location longitude is required'),
+        body('profileImage').notEmpty().withMessage('Profile image is required'),
     ],
     mapsController.saveLocation
 );
@@ -46,7 +43,9 @@ router.get('/getData', authMapAccess, mapsController.getMapData);
 // router.get('/ride/:userId', authMiddleware.authUserOrCaptain, mapsControllers.getRideData);
 
 router.get('/rides', mapsController.getAllRides);
-router.put('/updateRideData', authMiddleware.authUserOrCaptain, mapsController.updateRideData);
-router.get('/rideByCaptainName/:captainname', authMiddleware.authCaptain, mapsController.getRideByCaptainName);
+router.post('/updateRideData', authMiddleware.authUserOrCaptain , mapsController.updateRideData);
+router.put('/updateRideStatus', authMiddleware.authUserOrCaptain, mapsController.updateRideStatus);
+
+// router.get('/rideByCaptainName/:captainname', mapsController.getRideByCaptainName);
 
 module.exports = router;

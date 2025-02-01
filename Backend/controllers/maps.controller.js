@@ -41,12 +41,13 @@ module.exports.saveLocation = async (req, res, next) => {
         return res.status(400).json({ errors: errors.array() });
     }
 
-    const { userId, username, phone, pickup, destination, distance, vehicle } = req.body;
+    const { userId, username, phone, pickup, profileImage, destination, distance, vehicle } = req.body;
 
     try {
         const locationData = await mapsService.saveLocation({
             userId,
             username,
+            profileImage,
             phone,
             pickup,
             destination,
@@ -94,23 +95,30 @@ module.exports.getMapData = async (req, res) => {
 };
 
 module.exports.getLatestRide = async (req, res) => {
-    try {
-        const { username } = req.query; // Assuming username is passed as a query parameter
-        const rides = await Location.find({ username }).sort({ confirmedAt: -1 }); // Find all rides by username and sort by confirmedAt
+  try {
+    const { username, captainname } = req.query; // Assuming username and captainname are passed as query parameters
 
-        if (!rides || rides.length === 0) {
-            return res.status(404).json({ message: 'No rides available for this username' });
-        }
+    let rides = await Location.find({ username }).sort({ confirmedAt: -1 }); // Find all rides by username and sort by confirmedAt
 
-        res.status(200).json({
-            message: 'Rides fetched successfully',
-            data: rides,
-        });
-    } catch (error) {
-        console.error('Error fetching rides:', error);
-        res.status(500).json({ message: 'Failed to fetch rides', error: error.message });
+    if (!rides || rides.length === 0) {
+      // If no rides found by username, try finding by captainname
+      rides = await Location.find({ captainname }).sort({ confirmedAt: -1 });
+
+      if (!rides || rides.length === 0) {
+        return res.status(404).json({ message: 'No rides available for this username or captainname' });
+      }
     }
+
+    res.status(200).json({
+      message: 'Rides fetched successfully',
+      data: rides,
+    });
+  } catch (error) {
+    console.error('Error fetching rides:', error);
+    res.status(500).json({ message: 'Failed to fetch rides', error: error.message });
+  }
 };
+
 
 module.exports.getAllRides = async (req, res) => {
     try {
@@ -173,6 +181,27 @@ module.exports.updateRideData = async (req, res) => {
   } catch (error) {
     console.error('Error updating ride data:', error);
     res.status(500).json({ message: 'Failed to update ride data', error: error.message });
+  }
+};
+
+module.exports.updateRideStatus = async (req, res) => {
+  const { rideId, status } = req.body;
+  if (!['pending', 'accepted', 'completed', 'cancel'].includes(status)) {
+    return res.status(400).json({ message: 'Invalid status value' });
+  }
+
+  try {
+    const ride = await Location.findById(rideId);
+    if (!ride) {
+      console.error(`Ride not found for rideId: ${rideId}`);
+      return res.status(404).json({ message: 'Ride not found' });
+    }
+    ride.status = status;
+    await ride.save();
+    res.status(200).json({ message: 'Ride status updated successfully', ride });
+  } catch (error) {
+    console.error('Error updating ride status:', error);
+    res.status(500).json({ message: 'Failed to update ride status', error: error.message });
   }
 };
 

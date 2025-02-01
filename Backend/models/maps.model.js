@@ -4,6 +4,7 @@ const locationSchema = new mongoose.Schema({
     userId: { type: mongoose.Schema.Types.ObjectId, required: true, ref: 'User' },
     status: { type: String, enum: ['pending', 'accepted', 'completed', 'cancel'], default: 'pending' },
     username: { type: String, required: true },
+    profileImage: { type: String },
     phone: { type: String, required: true },
     pickup: {
         name: { type: String, required: true },

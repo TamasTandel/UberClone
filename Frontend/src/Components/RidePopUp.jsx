@@ -95,7 +95,7 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
         return;
       }
 
-      await axios.put(
+      await axios.post(
         "http://localhost:4000/api/maps/updateRideData",
         {
           rideId: currentRide._id,
@@ -162,7 +162,7 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
             <div className="flex items-center gap-4">
               <img
                 className="h-10 w-10 object-cover rounded-full"
-                src={rides[currentRideIndex]?.profileImage || "https://images.unsplash.com/photo-1595152772835-219674b2a8a6"}
+                src={`http://localhost:4000/${rides[currentRideIndex]?.profileImage}` || "https://images.unsplash.com/photo-1595152772835-219674b2a8a6"}
                 alt=""
               />
               <h4 className="text-lg font-bold">{rides[currentRideIndex]?.username || "Unknown User"}</h4>

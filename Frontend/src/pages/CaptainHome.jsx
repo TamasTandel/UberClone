@@ -8,6 +8,7 @@ import MapComponent from '../Components/MapComponent';
 import gsap from 'gsap';
 import { io } from 'socket.io-client';
 import axios from 'axios';
+import ErrorBoundary from '../Components/ErrorBoundary';
 
 const CaptainHome = () => {
   const [ridePopUpPanel, setRidePopUpPanel] = useState(false);
@@ -49,30 +50,42 @@ const CaptainHome = () => {
     }
   };
 
-  const fetchRideData = async (captainName) => {
+  const fetchRideDetails = async (captainName) => {
     try {
-      const response = await axios.get(`http://localhost:4000/api/maps/rideByCaptainName/${captainName}`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found in localStorage");
+        return;
+      }
+
+      console.log('Fetching ride details for captainname:', captainName);
+
+      const response = await axios.get(`http://localhost:4000/api/maps/latestRide?captain.name=${captainName}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
-      const rideData = response.data.data;
-      setRideData(rideData);
-      localStorage.setItem('selectedRide', JSON.stringify(rideData));
-      console.log('Fetched ride data:', rideData);
+
+      setCaptainDetails(response.data);
+      localStorage.setItem('selectedRide', JSON.stringify(response.data)); // Store ride data in localStorage
+      console.log('Ride Details:', response.data);
     } catch (error) {
-      console.error('Error fetching ride data:', error.message);
+      console.error("Error fetching ride details:", error.response ? error.response.data : error.message);
+    }
+  };
+
+  const fetchCaptainStatus = async () => {
+    const profileData = await fetchCaptainProfile();
+    if (profileData) {
+      setCaptainStatus(profileData.status);
+      setCaptainName(profileData.captainname);
+      if (profileData.status === 'riding') {
+        fetchRideDetails(profileData.captainname);
+      }
     }
   };
 
   useEffect(() => {
-    const fetchCaptainStatus = async () => {
-      const profileData = await fetchCaptainProfile();
-      if (profileData) {
-        setCaptainStatus(profileData.status);
-        setCaptainName(profileData.captainname);
-        fetchRideData(profileData.captainname);
-      }
-    };
-
     fetchCaptainStatus();
 
     const socket = io("http://localhost:4000");
@@ -178,7 +191,9 @@ const CaptainHome = () => {
       </div>
       
       <div ref={rideingRef} className="fixed w-full z-20 bottom-0 translate-y-full px-3 py-10 pt-12 bg-white">
-        <Rideing selectedRide={selectedRide} captainStatus={captainStatus}/>
+        <ErrorBoundary>
+          <Rideing setRidingPanel={setSelectedRide} selectedRide={selectedRide} />
+        </ErrorBoundary>
       </div>
     </div>
   );

@@ -12,31 +12,13 @@ const ConfirmRidePopUp = ({ setConfirmRidePopUpPanel, rideData }) => {
       const parsedRide = JSON.parse(rideDataFromStorage);
       setRideDetails(parsedRide);
       setPhone(parsedRide.phone);
-      console.log('Ride data from localStorage:', parsedRide); // Log the data
+      console.log('Ride data from localStorage:', parsedRide); // Log the data\
     } else if (rideData) {
       setRideDetails(rideData);
       setPhone(rideData.phone);
       localStorage.setItem('selectedRide', JSON.stringify(rideData));
       console.log('Ride data from parent:', rideData); // Log the data
-    } else {
-      // Fetch from database if no data in localStorage or from parent
-      const fetchRideData = async () => {
-        try {
-          const response = await axios.get('http://localhost:4000/api/maps/rideByCaptainName/someCaptainName', {
-            headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-          });
-          const fetchedRideData = response.data.data;
-          setRideDetails(fetchedRideData);
-          setPhone(fetchedRideData.phone);
-          localStorage.setItem('selectedRide', JSON.stringify(fetchedRideData));
-          console.log('Fetched ride data from database:', fetchedRideData); // Log the data
-        } catch (error) {
-          console.error('Error fetching ride data:', error.message);
-        }
-      };
-
-      fetchRideData();
-    }
+    } 
   }, [rideData]);
 
   const maskPhoneNumber = (phone) => {
@@ -88,7 +70,7 @@ const ConfirmRidePopUp = ({ setConfirmRidePopUpPanel, rideData }) => {
             <div className="flex items-center gap-4">
               <img
                 className="h-10 w-10 object-cover rounded-full"
-                src="https://images.unsplash.com/photo-1595152772835-219674b2a8a6"
+                src={`http://localhost:4000/${rideDetails.profileImage}` || "https://images.unsplash.com/photo-1595152772835-219674b2a8a6"}
                 alt=""
               />
               <h4 className="text-lg font-bold">{rideDetails.username || "Unknown User"}</h4>

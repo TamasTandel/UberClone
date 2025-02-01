@@ -21,6 +21,7 @@ const ConfirmRide = ({
     fullname: { firstname: "", lastname: "" },
     userId: "",
     mobile: "", // Add mobile to userProfile state
+    profileImage: "",
   });
   
   useEffect(() => {
@@ -33,6 +34,7 @@ const ConfirmRide = ({
             username: username,
             userId: "unknown",
             mobile: "", // Set default mobile
+            profileImage: "profileImage",
           });
           return;
         }
@@ -47,6 +49,7 @@ const ConfirmRide = ({
           username: response.data.username,
           userId: response.data._id,
           mobile: response.data.mobile, // Store mobile number
+          profileImage: response.data.profileImage,
         });
       } catch (error) {
         console.error("Error fetching user profile:", error);
@@ -54,6 +57,7 @@ const ConfirmRide = ({
           username: username,
           userId: "unknown",
           mobile: "", // Set default mobile
+          profileImage: "profileImage",
         });
       }
     };
@@ -102,7 +106,7 @@ const handleConfirm = async () => {
       image: selectedVehicleImage,
     },
   };
-
+  console.log("rideData :",rideData)
   try {
     const response = await axios.post(
       "http://localhost:4000/api/maps/save",

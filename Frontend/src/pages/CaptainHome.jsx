@@ -9,6 +9,7 @@ import { io } from 'socket.io-client';
 import axios from 'axios';
 import ErrorBoundary from '../Components/ErrorBoundary';
 import CaptainRideing from '../Components/CaptainRideing';
+import MenuCaptain from '../Components/MenuCaptain';
 
 const CaptainHome = () => {
   const [ridePopUpPanel, setRidePopUpPanel] = useState(false);
@@ -23,11 +24,14 @@ const CaptainHome = () => {
   const [showRideing, setShowRideing] = useState(false);
   const [captainName, setCaptainName] = useState("");
   const [rideData, setRideData] = useState(null);
+  const [showMenuPanel, setShowMenuPanel] = useState(false); // New state for menu panel
+  const [allRides, setAllRides] = useState([]); // New state for all rides
 
   const captainDetailsRef = useRef(null);
   const ridePopUpPanelRef = useRef(null);
   const confirmRidePopUpPanelRef = useRef(null);
   const rideingRef = useRef(null);
+  const menuPanelRef = useRef(null);
 
   const fetchCaptainProfile = async () => {
     try {
@@ -50,7 +54,7 @@ const CaptainHome = () => {
     }
   };
 
-  const fetchRideDetails = async (captainName) => {
+  const fetchRideDetails = async (captainname) => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -58,15 +62,15 @@ const CaptainHome = () => {
         return;
       }
 
-      console.log('Fetching ride details for captainname:', captainName);
+      console.log('Fetching ride details for captainname:', captainname);
 
-      const response = await axios.get(`http://localhost:4000/api/maps/latestRide?captain.name=${captainName}`, {
+      const response = await axios.get(`http://localhost:4000/api/maps/latestRide?captain.name=${captainname}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
-
       setCaptainDetails(response.data);
+      setAllRides(response.data);
       setSelectedRide(response.data.data[0]); // Store the first ride details in state
       localStorage.setItem('selectedRide', JSON.stringify(response.data.data[0])); // Store the first ride details in localStorage
       console.log('Ride Details:', response.data);
@@ -152,6 +156,14 @@ const CaptainHome = () => {
     setConfirmRidePopUpPanel(true);
   };
 
+  useEffect(() => {
+    if (showMenuPanel) {
+      gsap.to(menuPanelRef.current, { transform: 'translateY(0)', duration: 0.5, opacity: 1 });
+    } else {
+      gsap.to(menuPanelRef.current, { transform: 'translateY(200%)', duration: 0.5, opacity: 0 });
+    }
+  }, [showMenuPanel]);
+
   return (
     <div className="h-screen relative">
       <div className="fixed bg-white flex justify-between w-full z-10">
@@ -160,9 +172,12 @@ const CaptainHome = () => {
           src="https://cdn-assets-us.frontify.com/s3/frontify-enterprise-files-us/eyJwYXRoIjoicG9zdG1hdGVzXC9hY2NvdW50c1wvODRcLzQwMDA1MTRcL3Byb2plY3RzXC8yN1wvYXNzZXRzXC9lZFwvNTUwOVwvNmNmOGVmM2YzMjFkMTA3YThmZGVjNjY1NjJlMmVmMzctMTYyMDM3Nzc0OC5haSJ9:postmates:9KZWqmYNXpeGs6pQy4UCsx5EL3qq29lhFS6e4ZVfQrs?width=2400"
           alt=""
         />
-        <Link className="flex h-10 w-10 m-4 bg-white items-center justify-center rounded-full text-2xl font-semibold" to={'/captain-home'}>
-          <i className="ri-logout-box-r-line"></i>
-        </Link>
+        <button
+          className="flex h-10 w-10 m-4 bg-white items-center justify-center rounded-full text-2xl font-semibold"
+          onClick={() => setShowMenuPanel(true)} // Change to menu icon and add onClick handler
+        >
+          <i className="ri-menu-line"></i>
+        </button>
       </div>
 
       <div className="absolute top-[10vh] left-0 w-full h-full z-0">
@@ -179,7 +194,6 @@ const CaptainHome = () => {
           onAccept={handleAcceptRide}
         />
       </div>
-
       <div ref={confirmRidePopUpPanelRef} className="fixed w-full z-20 bottom-0 translate-y-full px-3 py-10 pt-12 bg-white">
         <ConfirmRidePopUp 
           selectedUser={selectedUser} 
@@ -196,6 +210,13 @@ const CaptainHome = () => {
           <CaptainRideing setRidingPanel={setShowRideing} selectedRide={selectedRide} />
         </ErrorBoundary>
       </div>
+      {showMenuPanel && (
+        <MenuCaptain 
+          onClose={() => setShowMenuPanel(false)} 
+          allRides={allRides} 
+          fetchRideDetails={fetchRideDetails} // Pass the fetchRideDetails function as a prop
+        />
+      )}
     </div>
   );
 };

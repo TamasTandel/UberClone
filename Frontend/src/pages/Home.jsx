@@ -10,6 +10,7 @@ import MapComponent from '../Components/MapComponent';
 import { Link } from 'react-router-dom';
 import ErrorBoundary from '../Components/ErrorBoundary';
 import Rideing from '../Components/Rideing';
+import Menu from '../Components/Menu'; // Import the Menu component
 
 const Home = () => {
   const [pickup, setPickup] = useState(null);
@@ -34,6 +35,8 @@ const Home = () => {
   const [userId, setUserId] = useState("");
   const [selectedRide, setSelectedRide] = useState(null);
   const [showRideing, setShowRideing] = useState(false);
+  const [showMenuPanel, setShowMenuPanel] = useState(false); // New state for menu panel
+  const [allRides, setAllRides] = useState([]); // New state for all rides
 
   const mapRef = useRef(null);
   const locationPanelRef = useRef(null);
@@ -42,6 +45,7 @@ const Home = () => {
   const confirmRidePanelRef = useRef(null);
   const waitingForDriverRef = useRef(null);
   const rideingRef = useRef(null);
+  const menuPanelRef = useRef(null); // New ref for menu panel
 
   useEffect(() => {
     if (pickup && destination) {
@@ -62,6 +66,7 @@ const Home = () => {
       setDestination(location);
     }
   };
+
   useEffect(() => {
     const fetchUserStatus = async () => {
       try {
@@ -100,30 +105,31 @@ const Home = () => {
       }
     };
 
-  const fetchRideDetails = async (username) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        console.error("No token found in localStorage");
-        return;
+    const fetchRideDetails = async (username) => {
+      try {
+        const token = localStorage.getItem("token");
+        if (!token) {
+          console.error("No token found in localStorage");
+          return;
+        }
+
+        console.log('Fetching ride details for username:', username);
+
+        const response = await axios.get(`http://localhost:4000/api/maps/latestRide?username=${username}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setCaptainDetails(response.data);
+        setAllRides(response.data);
+        setSelectedRide(response.data.data[0]);
+        localStorage.setItem('selectedRide', JSON.stringify(response.data.data[0]));
+        console.log('Ride Details:', response.data);
+      } catch (error) {
+        console.error("Error fetching ride details:", error.response ? error.response.data : error.message);
       }
-
-      console.log('Fetching ride details for username:', username);
-
-      const response = await axios.get(`http://localhost:4000/api/maps/latestRide?username=${username}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      setCaptainDetails(response.data);
-      setSelectedRide(response.data.data[0]);
-      localStorage.setItem('selectedRide', JSON.stringify(response.data.data[0]));
-      console.log('Ride Details:', response.data);
-    } catch (error) {
-      console.error("Error fetching ride details:", error.response ? error.response.data : error.message);
-    }
-  };
+    };
 
     fetchUserStatus();
   }, []);
@@ -216,7 +222,15 @@ const Home = () => {
       gsap.to(rideingRef.current, { transform: 'translateY(200%)', duration: 0.5, opacity: 0 });
     }
   }, [showRideing]);
-  
+
+  useEffect(() => {
+    if (showMenuPanel) {
+      gsap.to(menuPanelRef.current, { transform: 'translateY(0)', duration: 0.5, opacity: 1 });
+    } else {
+      gsap.to(menuPanelRef.current, { transform: 'translateY(200%)', duration: 0.5, opacity: 0 });
+    }
+  }, [showMenuPanel]);
+
   return (
     <div className="h-screen relative overflow-hidden">
       <div className="fixed bg-white flex justify-between w-full z-10">
@@ -225,9 +239,12 @@ const Home = () => {
           src="https://cdn-assets-us.frontify.com/s3/frontify-enterprise-files-us/eyJwYXRoIjoicG9zdG1hdGVzXC9hY2NvdW50c1wvODRcLzQwMDA1MTRcL3Byb2plY3RzXC8yN1wvYXNzZXRzXC9lZFwvNTUwOVwvNmNmOGVmM2YzMjFkMTA3YThmZGVjNjY1NjJlMmVmMzctMTYyMDM3Nzc0OC5haSJ9:postmates:9KZWqmYNXpeGs6pQy4UCsx5EL3qq29lhFS6e4ZVfQrs?width=2400"
           alt=""
         />
-        <Link className="flex h-10 w-10 m-4 bg-white items-center justify-center rounded-full text-2xl font-semibold" to={'/home'}>
-          <i className="ri-logout-box-r-line"></i>
-        </Link>
+        <button
+          className="flex h-10 w-10 m-4 bg-white items-center justify-center rounded-full text-2xl font-semibold"
+          onClick={() => setShowMenuPanel(true)} // Change to menu icon and add onClick handler
+        >
+          <i className="ri-menu-line"></i>
+        </button>
       </div>
       <div className="absolute top-0 left-0 w-full h-full z-0">
         <MapComponent
@@ -297,10 +314,10 @@ const Home = () => {
         </div>
       )}
 
-    {userStatus === "Waiting" && (
-      <div ref={waitingForDriverRef} className="fixed z-20 translate-y-full bottom-0 w-full bg-white p-5">
-        <WaitingForDriver captainDetails={captainDetails} />
-      </div>
+      {userStatus === "Waiting" && (
+        <div ref={waitingForDriverRef} className="fixed z-20 translate-y-full bottom-0 w-full bg-white p-5">
+          <WaitingForDriver captainDetails={captainDetails} />
+        </div>
       )}
       
       {userStatus === "Riding" && (
@@ -309,6 +326,10 @@ const Home = () => {
             <Rideing setRidingPanel={setShowRideing} selectedRide={selectedRide} />
           </ErrorBoundary>
         </div>
+      )}
+
+      {showMenuPanel && (
+        <Menu onClose={() => setShowMenuPanel(false)} allRides={allRides} />
       )}
     </div>
   );

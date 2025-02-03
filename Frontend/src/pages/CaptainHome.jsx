@@ -2,13 +2,13 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import CaptainDetails from '../Components/CaptainDetails';
 import RidePopUp from '../Components/RidePopUp';
-import Rideing from '../Components/Rideing';
 import ConfirmRidePopUp from '../Components/ConfirmRidePopUp';
 import MapComponent from '../Components/MapComponent';
 import gsap from 'gsap';
 import { io } from 'socket.io-client';
 import axios from 'axios';
 import ErrorBoundary from '../Components/ErrorBoundary';
+import CaptainRideing from '../Components/CaptainRideing';
 
 const CaptainHome = () => {
   const [ridePopUpPanel, setRidePopUpPanel] = useState(false);
@@ -67,7 +67,8 @@ const CaptainHome = () => {
       });
 
       setCaptainDetails(response.data);
-      localStorage.setItem('selectedRide', JSON.stringify(response.data)); // Store ride data in localStorage
+      setSelectedRide(response.data.data[0]); // Store the first ride details in state
+      localStorage.setItem('selectedRide', JSON.stringify(response.data.data[0])); // Store the first ride details in localStorage
       console.log('Ride Details:', response.data);
     } catch (error) {
       console.error("Error fetching ride details:", error.response ? error.response.data : error.message);
@@ -192,7 +193,7 @@ const CaptainHome = () => {
       
       <div ref={rideingRef} className="fixed w-full z-20 bottom-0 translate-y-full px-3 py-10 pt-12 bg-white">
         <ErrorBoundary>
-          <Rideing setRidingPanel={setSelectedRide} selectedRide={selectedRide} />
+          <CaptainRideing setRidingPanel={setShowRideing} selectedRide={selectedRide} />
         </ErrorBoundary>
       </div>
     </div>

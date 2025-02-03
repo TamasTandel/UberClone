@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
-const Rideing = ({ setRidingPanel, selectedRide }) => {
+const CaptainRideing = ({ setRidingPanel, selectedRide }) => {
   const [rideStatus, setRideStatus] = useState('ongoing');
 
   useEffect(() => {
@@ -12,14 +12,19 @@ const Rideing = ({ setRidingPanel, selectedRide }) => {
 
   const completeRideHandler = async () => {
     try {
+      // Update ride status to completed
       await axios.put('http://localhost:4000/api/maps/updateRideStatus', 
         { rideId: selectedRide._id, status: 'completed' }, 
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
+
+      // Update captain status to inactive
       await axios.put('http://localhost:4000/api/captains/status', 
         { status: 'inactive' }, 
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
+
+      // Update user status to Nothing
       await axios.put('http://localhost:4000/api/users/update-status', 
         { username: selectedRide.username, status: 'Nothing' }, 
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
@@ -27,8 +32,8 @@ const Rideing = ({ setRidingPanel, selectedRide }) => {
 
       setRideStatus('completed');
       alert('Ride completed successfully');
-      setRidingPanel(false);
-      localStorage.removeItem('selectedRide');
+      setRidingPanel(false); // Close the riding panel after completing the ride
+      localStorage.removeItem('selectedRide'); // Remove ride data from localStorage
       window.location.reload();
     } catch (error) {
       console.error('Error completing ride:', error.response?.data?.message || error.message);
@@ -51,10 +56,10 @@ const Rideing = ({ setRidingPanel, selectedRide }) => {
             <div className="flex items-center gap-4">
               <img
                 className="h-10 w-10 object-cover rounded-full"
-                src={`http://localhost:4000/${selectedRide.captain.profileImage}`}
+                src={`http://localhost:4000/${selectedRide.profileImage}`}
                 alt="Captain"
               />
-              <h4 className="text-lg font-bold">{selectedRide.captain.name || "Unknown User"}</h4>
+              <h4 className="text-lg font-bold">{selectedRide.username || "Unknown User"}</h4>
             </div>
             <h5 className="text-lg font-bold mr-3">{selectedRide.distance || "N/A"} km</h5>
           </div>
@@ -96,4 +101,4 @@ const Rideing = ({ setRidingPanel, selectedRide }) => {
   );
 };
 
-export default Rideing;
+export default CaptainRideing;

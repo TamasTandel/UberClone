@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { gsap } from 'gsap'; // GSAP import
+import { gsap } from 'gsap';
 import axios from 'axios';
 import LocationSearchPanel from '../Components/LocationSearchPanel';
 import VehiclePanel from '../Components/VehiclePanel';
@@ -8,6 +8,8 @@ import WaitingForDriver from '../Components/WaitingForDriver';
 import LookinngForDriver from '../Components/LookinngForDriver';
 import MapComponent from '../Components/MapComponent';
 import { Link } from 'react-router-dom';
+import ErrorBoundary from '../Components/ErrorBoundary';
+import Rideing from '../Components/Rideing';
 
 const Home = () => {
   const [pickup, setPickup] = useState(null);
@@ -27,9 +29,11 @@ const Home = () => {
   const [selectedVehicleName, setSelectedVehicleName] = useState("");
   const [vehicleFee, setVehicleFee] = useState(null);
   const [travelTime, setTravelTime] = useState(null);
-  const [captainDetails, setCaptainDetails] = useState(null); // Default value
-  const [userStatus, setUserStatus] = useState(""); // New state for user status
-  const [userId, setUserId] = useState(""); // New state for user ID
+  const [captainDetails, setCaptainDetails] = useState(null);
+  const [userStatus, setUserStatus] = useState("");
+  const [userId, setUserId] = useState("");
+  const [selectedRide, setSelectedRide] = useState(null);
+  const [showRideing, setShowRideing] = useState(false);
 
   const mapRef = useRef(null);
   const locationPanelRef = useRef(null);
@@ -37,6 +41,7 @@ const Home = () => {
   const vehicleFoundRef = useRef(null);
   const confirmRidePanelRef = useRef(null);
   const waitingForDriverRef = useRef(null);
+  const rideingRef = useRef(null);
 
   useEffect(() => {
     if (pickup && destination) {
@@ -57,8 +62,6 @@ const Home = () => {
       setDestination(location);
     }
   };
-
-  // Fetch user status from the database
   useEffect(() => {
     const fetchUserStatus = async () => {
       try {
@@ -78,8 +81,8 @@ const Home = () => {
         console.log("response.data", response.data);
         console.log("response.data.status", response.data.status);
 
-        const username = response.data.username; // Extract username from profile response
-        localStorage.setItem("username", username); // Store username in localStorage
+        const username = response.data.username;
+        localStorage.setItem("username", username);
 
         if (response.data.status === "Nothing") {
           setIsLocationsSelected(true);
@@ -87,35 +90,40 @@ const Home = () => {
           setVehicleFound(true);
         } else if (response.data.status === "Waiting") {
           setWaitingForDriver(true);
-          fetchRideDetails(username); // Fetch ride details if status is "Waiting"
+          fetchRideDetails(username);
+        } else if (response.data.status === "Riding") {
+          setShowRideing(true);
+          fetchRideDetails(username);
         }
       } catch (error) {
         console.error("Error fetching user status:", error);
       }
     };
 
-    const fetchRideDetails = async (username) => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found in localStorage");
-          return;
-        }
-
-        console.log('Fetching ride details for username:', username);
-
-        const response = await axios.get(`http://localhost:4000/api/maps/latestRide?username=${username}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setCaptainDetails(response.data);
-        console.log('Ride Details:', response.data);
-      } catch (error) {
-        console.error("Error fetching ride details:", error.response ? error.response.data : error.message);
+  const fetchRideDetails = async (username) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found in localStorage");
+        return;
       }
-    };
+
+      console.log('Fetching ride details for username:', username);
+
+      const response = await axios.get(`http://localhost:4000/api/maps/latestRide?username=${username}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setCaptainDetails(response.data);
+      setSelectedRide(response.data.data[0]);
+      localStorage.setItem('selectedRide', JSON.stringify(response.data.data[0]));
+      console.log('Ride Details:', response.data);
+    } catch (error) {
+      console.error("Error fetching ride details:", error.response ? error.response.data : error.message);
+    }
+  };
 
     fetchUserStatus();
   }, []);
@@ -201,9 +209,16 @@ const Home = () => {
     }
   }, [waitingForDriver]);
 
+  useEffect(() => {
+    if (showRideing) {
+      gsap.to(rideingRef.current, { transform: 'translateY(0)', duration: 0.5, opacity: 1 });
+    } else {
+      gsap.to(rideingRef.current, { transform: 'translateY(200%)', duration: 0.5, opacity: 0 });
+    }
+  }, [showRideing]);
+  
   return (
     <div className="h-screen relative overflow-hidden">
-      {/* Map component with z-index to stay behind */}
       <div className="fixed bg-white flex justify-between w-full z-10">
         <img
           className="w-28"
@@ -241,8 +256,6 @@ const Home = () => {
           </div>
         </div>
       )}
-
-      {/* Vehicle Panel */}
       <div ref={vehiclePanelRef} className="fixed z-20 bottom-0 translate-y-full w-full p-5 bg-white">
         <VehiclePanel
           pickupLocation={pickupLocation}
@@ -258,8 +271,6 @@ const Home = () => {
           setSelectedVehicleName={setSelectedVehicleName}
         />
       </div>
-
-      {/* Confirm Ride Panel */}
       <div ref={confirmRidePanelRef} className="fixed z-20 bottom-0 translate-y-full w-full bg-white p-5">
         <ConfirmRide
           setConfirmRidePanel={setConfirmRidePanel}
@@ -268,14 +279,11 @@ const Home = () => {
           selectedVehicleName={selectedVehicleName} 
           pickupLocation={pickupLocation}
           destinationLocation={destinationLocation}
-          vehicleFee={vehicleFee} // Fee for the selected vehicle
-          travelTime={travelTime} // Travel time for the selected vehicle
+          vehicleFee={vehicleFee}
+          travelTime={travelTime}
           routeDistance={routeDistance}
         />
       </div>
-
-      {/* Conditionally Render Panels Based on User Status */}
-
       {userStatus === "Looking" && (
         <div ref={vehicleFoundRef} className="fixed z-30 bottom-0 translate-y-full w-full bg-white p-5">
           <LookinngForDriver
@@ -293,7 +301,15 @@ const Home = () => {
       <div ref={waitingForDriverRef} className="fixed z-20 translate-y-full bottom-0 w-full bg-white p-5">
         <WaitingForDriver captainDetails={captainDetails} />
       </div>
-    )}
+      )}
+      
+      {userStatus === "Riding" && (
+        <div ref={rideingRef} className="fixed w-full z-20 bottom-0 translate-y-full px-3 py-10 pt-12 bg-white">
+          <ErrorBoundary>
+            <Rideing setRidingPanel={setShowRideing} selectedRide={selectedRide} />
+          </ErrorBoundary>
+        </div>
+      )}
     </div>
   );
 };

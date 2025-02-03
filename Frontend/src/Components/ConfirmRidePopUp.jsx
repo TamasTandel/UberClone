@@ -34,6 +34,22 @@ const ConfirmRidePopUp = ({ setConfirmRidePopUpPanel, rideData }) => {
     }
   };
 
+  const updateUserStatus = async () => {
+    console.log("Updating status for username:", rideDetails.username); // Log username
+    try {
+      await axios.put('http://localhost:4000/api/users/update-status', {
+        username: rideDetails.username,
+        status: 'Riding',
+      }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+      });
+      alert('User status updated to riding');
+    } catch (error) {
+      console.error('Error updating user status:', error.response?.data?.message || error.message);
+      alert('Error updating user status');
+    }
+  };
+
   const submitHandler = async (e) => {
     e.preventDefault();
     try {
@@ -47,6 +63,10 @@ const ConfirmRidePopUp = ({ setConfirmRidePopUpPanel, rideData }) => {
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
       alert('Captain status updated to riding');
+
+      // Update user status to "riding"
+      await updateUserStatus(rideDetails.username);
+
       window.location.reload();
       // Proceed with ride confirmation logic here
     } catch (error) {

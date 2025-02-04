@@ -28,21 +28,39 @@ const MapComponent = ({ pickup, destination , users, handleSelectUser, selectedL
       // Track live location on map initialization
       trackLiveLocation();
     }
+
+    // Retrieve ride data from local storage
+    const rideData = JSON.parse(localStorage.getItem('rideData'));
+    if (rideData) {
+      // Set pickup and destination locations from ride data
+      addPickupMarker(rideData.pickup);
+      addDestinationMarker(rideData.destination);
+      fetchAndDisplayRoute(rideData.pickup, rideData.destination);
+    }
+
+    // Retrieve selected ride data from local storage
+    const selectedRide = JSON.parse(localStorage.getItem('selectedRide'));
+    if (selectedRide) {
+      // Set pickup and destination locations from selected ride data
+      addPickupMarker(selectedRide.pickup);
+      addDestinationMarker(selectedRide.destination);
+      fetchAndDisplayRoute(selectedRide.pickup, selectedRide.destination);
+    }
   }, []);
 
   useEffect(() => {
     // Add markers for pickup and destination
     if (pickup && pickup.lat && pickup.lng) {
-      addPickupMarker();
+      addPickupMarker(pickup);
     }
 
     if (destination && destination.lat && destination.lng) {
-      addDestinationMarker();
+      addDestinationMarker(destination);
     }
 
     // Fetch and display the route if both pickup and destination are set
     if (pickup && destination && pickup.lat && pickup.lng && destination.lat && destination.lng) {
-      fetchAndDisplayRoute();
+      fetchAndDisplayRoute(pickup, destination);
     }
   }, [pickup, destination]); // Re-run effect if pickup or destination changes
 
@@ -60,7 +78,7 @@ const MapComponent = ({ pickup, destination , users, handleSelectUser, selectedL
     }
   }, [selectedLocation]);
   
-  const fetchAndDisplayRoute = async () => {
+  const fetchAndDisplayRoute = async (pickup, destination) => {
     try {
       const response = await axios.get(
         `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${openRouteServiceApiKey}&start=${pickup.lng},${pickup.lat}&end=${destination.lng},${destination.lat}`
@@ -83,7 +101,7 @@ const MapComponent = ({ pickup, destination , users, handleSelectUser, selectedL
     }
   };
 
-  const addPickupMarker = () => {
+  const addPickupMarker = (pickup) => {
     if (pickup && pickup.lat && pickup.lng) {
       if (!pickupMarkerRef.current) {
         pickupMarkerRef.current = L.marker([pickup.lat, pickup.lng], {
@@ -98,7 +116,7 @@ const MapComponent = ({ pickup, destination , users, handleSelectUser, selectedL
     }
   };
 
-  const addDestinationMarker = () => {
+  const addDestinationMarker = (destination) => {
     if (destination && destination.lat && destination.lng) {
       if (!destinationMarkerRef.current) {
         destinationMarkerRef.current = L.marker([destination.lat, destination.lng], {

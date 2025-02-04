@@ -67,6 +67,11 @@ const Home = () => {
     }
   };
 
+  const clearLocalStorage = () => {
+    localStorage.removeItem('selectedRide');
+    localStorage.removeItem('rideData');
+  };
+
   useEffect(() => {
     const fetchUserStatus = async () => {
       try {
@@ -90,6 +95,7 @@ const Home = () => {
         localStorage.setItem("username", username);
 
         if (response.data.status === "Nothing") {
+          clearLocalStorage();
           setIsLocationsSelected(true);
         } else if (response.data.status === "Looking") {
           setVehicleFound(true);

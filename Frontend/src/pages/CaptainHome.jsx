@@ -159,6 +159,7 @@ const CaptainHome = () => {
   useEffect(() => {
     if (showMenuPanel) {
       gsap.to(menuPanelRef.current, { transform: 'translateY(0)', duration: 0.5, opacity: 1 });
+      fetchRideDetails(captainName); // Fetch ride details when the menu is opened
     } else {
       gsap.to(menuPanelRef.current, { transform: 'translateY(200%)', duration: 0.5, opacity: 0 });
     }
@@ -184,6 +185,16 @@ const CaptainHome = () => {
         <MapComponent users={users} handleSelectUser={handleSelectUser} selectedLocation={selectedLocation} />
       </div>
 
+      <div ref={ridePopUpPanelRef} className="fixed w-full z-50 bottom-0 translate-y-full px-3 pt-12 overflow-y-auto bg-white">
+        <RidePopUp
+          selectedUser={selectedUser}
+          rideRequests={rideRequests}
+          setRidePopUpPanel={setRidePopUpPanel}
+          setConfirmRidePopUpPanel={setConfirmRidePopUpPanel}
+          setSelectedRide={setSelectedRide}
+          onAccept={handleAcceptRide}
+        />
+      </div>
       <div ref={ridePopUpPanelRef} className="fixed w-full z-50 bottom-0 translate-y-full px-3 pt-12 overflow-y-auto bg-white">
         <RidePopUp
           selectedUser={selectedUser}

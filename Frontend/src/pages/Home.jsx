@@ -72,6 +72,32 @@ const Home = () => {
     localStorage.removeItem('rideData');
   };
 
+  const fetchRideDetails = async (username) => {
+    try {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        console.error("No token found in localStorage");
+        return;
+      }
+
+      console.log('Fetching ride details for username:', username);
+
+      const response = await axios.get(`http://localhost:4000/api/maps/latestRide?username=${username}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      setCaptainDetails(response.data);
+      setAllRides(response.data);
+      setSelectedRide(response.data.data[0]);
+      localStorage.setItem('selectedRide', JSON.stringify(response.data.data[0]));
+      console.log('Ride Details:', response.data);
+    } catch (error) {
+      console.error("Error fetching ride details:", error.response ? error.response.data : error.message);
+    }
+  };
+
   useEffect(() => {
     const fetchUserStatus = async () => {
       try {
@@ -111,36 +137,11 @@ const Home = () => {
       }
     };
 
-    const fetchRideDetails = async (username) => {
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          console.error("No token found in localStorage");
-          return;
-        }
-
-        console.log('Fetching ride details for username:', username);
-
-        const response = await axios.get(`http://localhost:4000/api/maps/latestRide?username=${username}`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-
-        setCaptainDetails(response.data);
-        setAllRides(response.data);
-        setSelectedRide(response.data.data[0]);
-        localStorage.setItem('selectedRide', JSON.stringify(response.data.data[0]));
-        console.log('Ride Details:', response.data);
-      } catch (error) {
-        console.error("Error fetching ride details:", error.response ? error.response.data : error.message);
-      }
-    };
-
     fetchUserStatus();
   }, []);
 
   useEffect(() => {
+    console.log("isLocationsSelected:", isLocationsSelected);
     if (isLocationsSelected && locationPanelRef.current) {
       gsap.to(locationPanelRef.current, {
         translateY: '0%',
@@ -232,6 +233,11 @@ const Home = () => {
   useEffect(() => {
     if (showMenuPanel) {
       gsap.to(menuPanelRef.current, { transform: 'translateY(0)', duration: 0.5, opacity: 1 });
+      const username = localStorage.getItem("username");
+      if (username) {
+        fetchRideDetails(username);
+        console.log("fetchRideDetails :", username);
+      }
     } else {
       gsap.to(menuPanelRef.current, { transform: 'translateY(200%)', duration: 0.5, opacity: 0 });
     }

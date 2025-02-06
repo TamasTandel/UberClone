@@ -5,9 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "build": "vite build",
+    "postinstall": "npm install --legacy-peer-deps"
   },
   "dependencies": {
     "@gsap/react": "^2.1.1",

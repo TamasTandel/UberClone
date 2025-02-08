@@ -3,7 +3,11 @@
   "builds": [
     { "src": "package.json", "use": "@vercel/static-build", "config": { "distDir": "build" } }
   ],
+<<<<<<< HEAD
   "rewrites": [
+=======
+    "rewrites": [
+>>>>>>> f447530 (try to deploy)
     { "source": "/(.*)", "destination": "/" }
   ]
 }

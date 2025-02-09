@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { io } from "socket.io-client";
-const socket = io("http://localhost:4000"); 
+const socket = io("https://uber-clone-roan-xi.vercel.app"); 
 
 const ConfirmRide = ({
   setConfirmRidePanel,
@@ -39,7 +39,7 @@ const ConfirmRide = ({
           return;
         }
 
-        const response = await axios.get("http://localhost:4000/api/users/profile", {
+        const response = await axios.get("https://uber-clone-roan-xi.vercel.app/api/users/profile", {
           headers: {
             Authorization: `Bearer ${token}`, // Pass token in headers
           },
@@ -109,7 +109,7 @@ const handleConfirm = async () => {
   console.log("rideData :",rideData)
   try {
     const response = await axios.post(
-      "http://localhost:4000/api/maps/save",
+      "https://uber-clone-roan-xi.vercel.app/api/maps/save",
       rideData,
       {
         headers: {
@@ -122,7 +122,7 @@ const handleConfirm = async () => {
       alert("Ride confirmed and data saved successfully!");
       localStorage.setItem("rideData", JSON.stringify(rideData));
       const statusUpdateResponse = await axios.put(
-        "http://localhost:4000/api/users/update-status",
+        "https://uber-clone-roan-xi.vercel.app/api/users/update-status",
         { username: userProfile.username, status: "Looking" },
         {
           headers: {

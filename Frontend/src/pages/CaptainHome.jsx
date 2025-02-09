@@ -41,7 +41,7 @@ const CaptainHome = () => {
         return null;
       }
 
-      const response = await axios.get("http://localhost:4000/api/captains/profile", {
+      const response = await axios.get("https://uber-clone-roan-xi.vercel.app/api/captains/profile", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -64,7 +64,7 @@ const CaptainHome = () => {
 
       console.log('Fetching ride details for captainname:', captainname);
 
-      const response = await axios.get(`http://localhost:4000/api/maps/latestRide?captain.name=${captainname}`, {
+      const response = await axios.get(`https://uber-clone-roan-xi.vercel.app/api/maps/latestRide?captain.name=${captainname}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -93,7 +93,7 @@ const CaptainHome = () => {
   useEffect(() => {
     fetchCaptainStatus();
 
-    const socket = io("http://localhost:4000");
+    const socket = io("https://uber-clone-roan-xi.vercel.app");
 
     socket.on("rideRequest", (rideData) => {
       console.log("New Ride Request Received:", rideData);

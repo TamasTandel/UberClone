@@ -82,7 +82,7 @@ const Home = () => {
 
       console.log('Fetching ride details for username:', username);
 
-      const response = await axios.get(`http://localhost:4000/api/maps/latestRide?username=${username}`, {
+      const response = await axios.get(`https://uber-clone-roan-xi.vercel.app/api/maps/latestRide?username=${username}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -107,7 +107,7 @@ const Home = () => {
           return;
         }
 
-        const response = await axios.get("http://localhost:4000/api/users/profile", {
+        const response = await axios.get("https://uber-clone-roan-xi.vercel.app/api/users/profile", {
           headers: {
             Authorization: `Bearer ${token}`,
           },

@@ -4,7 +4,7 @@ import { io } from "socket.io-client";
 import MapComponent from "./MapComponent"; 
 
 // Connect to the backend socket server
-const socket = io("http://localhost:4000");
+const socket = io("https://uber-clone-roan-xi.vercel.app");
 
 const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) => {
   const [rides, setRides] = useState([]); // State for storing all rides
@@ -13,7 +13,7 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
   useEffect(() => {
     const fetchPendingRides = async () => {
       try {
-        const response = await axios.get("http://localhost:4000/api/maps/pendingRides", {
+        const response = await axios.get("https://uber-clone-roan-xi.vercel.app/api/maps/pendingRides", {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         });
         console.log("Pending ride data:", response.data.data); // Log the fetched data
@@ -44,7 +44,7 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
         return null;
       }
 
-      const response = await axios.get("http://localhost:4000/api/captains/profile", {
+      const response = await axios.get("https://uber-clone-roan-xi.vercel.app/api/captains/profile", {
         headers: {
           Authorization: `Bearer ${token}`, // Pass token in headers
         },
@@ -60,7 +60,7 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
   const handleCaptainAccept = async (username) => {
     console.log("Updating status for username:", username); // Log username
     try {
-      const response = await axios.put('http://localhost:4000/api/users/update-status', {
+      const response = await axios.put('https://uber-clone-roan-xi.vercel.app/api/users/update-status', {
         username,
         status: 'Waiting', // Status changes to "Waiting"
       }, {
@@ -74,7 +74,7 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
 
   const handleCaptainStatusUpdate = async () => {
     try {
-      const response = await axios.put('http://localhost:4000/api/captains/status', {
+      const response = await axios.put('https://uber-clone-roan-xi.vercel.app/api/captains/status', {
         status: 'active', // Update captain status to "active"
       }, {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
@@ -96,7 +96,7 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
       }
 
       await axios.post(
-        "http://localhost:4000/api/maps/updateRideData",
+        "https://uber-clone-roan-xi.vercel.app/api/maps/updateRideData",
         {
           rideId: currentRide._id,
           status: "accepted",
@@ -125,7 +125,7 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
     const currentRide = rides[currentRideIndex];
     try {
       await axios.put(
-        "http://localhost:4000/api/maps/updateRideData",
+        "https://uber-clone-roan-xi.vercel.app/api/maps/updateRideData",
         { rideId: currentRide._id, status: "pending" },
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
@@ -162,7 +162,7 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
             <div className="flex items-center gap-4">
               <img
                 className="h-10 w-10 object-cover rounded-full"
-                src={`http://localhost:4000/${rides[currentRideIndex]?.profileImage}` || "https://images.unsplash.com/photo-1595152772835-219674b2a8a6"}
+                src={`https://uber-clone-roan-xi.vercel.app/${rides[currentRideIndex]?.profileImage}` || "https://images.unsplash.com/photo-1595152772835-219674b2a8a6"}
                 alt=""
               />
               <h4 className="text-lg font-bold">{rides[currentRideIndex]?.username || "Unknown User"}</h4>

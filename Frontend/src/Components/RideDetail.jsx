@@ -11,7 +11,7 @@
 //               <div className="flex items-center gap-4">
 //                 <img
 //                   className="h-10 w-10 object-cover rounded-full"
-//                   src={`http://localhost:4000/${ride.captain.profileImage}`}
+//                   src={`https://uber-clone-roan-xi.vercel.app/${ride.captain.profileImage}`}
 //                   alt="Captain"
 //                 />
 //                 <h4 className="text-lg font-bold">{ride.username || "Unknown User"}</h4>

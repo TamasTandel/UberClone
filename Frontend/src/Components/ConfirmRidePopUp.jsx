@@ -27,7 +27,7 @@ const ConfirmRidePopUp = ({ setConfirmRidePopUpPanel, rideData }) => {
 
   const sendOtpHandler = async () => {
     try {
-      await axios.post('http://localhost:4000/api/send-otp', { phone });
+      await axios.post('https://uber-clone-roan-xi.vercel.app/api/send-otp', { phone });
       alert('OTP sent successfully');
     } catch (error) {
       console.error('Error sending OTP:', error);
@@ -37,7 +37,7 @@ const ConfirmRidePopUp = ({ setConfirmRidePopUpPanel, rideData }) => {
   const updateUserStatus = async () => {
     console.log("Updating status for username:", rideDetails.username); // Log username
     try {
-      await axios.put('http://localhost:4000/api/users/update-status', {
+      await axios.put('https://uber-clone-roan-xi.vercel.app/api/users/update-status', {
         username: rideDetails.username,
         status: 'Riding',
       }, {
@@ -54,11 +54,11 @@ const ConfirmRidePopUp = ({ setConfirmRidePopUpPanel, rideData }) => {
     e.preventDefault();
     try {
       // First, verify the OTP
-      await axios.post('http://localhost:4000/api/verify-otp', { phone, otp });
+      await axios.post('https://uber-clone-roan-xi.vercel.app/api/verify-otp', { phone, otp });
       alert('OTP verified successfully');
 
       // Then, update captain status to "riding"
-      await axios.put('http://localhost:4000/api/captains/status', 
+      await axios.put('https://uber-clone-roan-xi.vercel.app/api/captains/status', 
         { status: 'riding' }, 
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
@@ -90,7 +90,7 @@ const ConfirmRidePopUp = ({ setConfirmRidePopUpPanel, rideData }) => {
             <div className="flex items-center gap-4">
               <img
                 className="h-10 w-10 object-cover rounded-full"
-                src={`http://localhost:4000/${rideDetails.profileImage}` || "https://images.unsplash.com/photo-1595152772835-219674b2a8a6"}
+                src={`https://uber-clone-roan-xi.vercel.app/${rideDetails.profileImage}` || "https://images.unsplash.com/photo-1595152772835-219674b2a8a6"}
                 alt=""
               />
               <h4 className="text-lg font-bold">{rideDetails.username || "Unknown User"}</h4>

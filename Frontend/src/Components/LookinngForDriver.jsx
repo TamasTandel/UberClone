@@ -14,7 +14,7 @@ const LookingForDriver = ({ setVehicleFound }) => {
   const updateRideStatus = async (userId, status) => {
     try {
       const response = await axios.put(
-        "http://localhost:4000/api/maps/updateStatus",
+        "https://uber-clone-roan-xi.vercel.app/api/maps/updateStatus",
         { userId, status },
         {
           headers: {
@@ -36,7 +36,7 @@ const LookingForDriver = ({ setVehicleFound }) => {
   const updateUserStatus = async (status) => {
     try {
       const response = await axios.put(
-        "http://localhost:4000/api/users/update-status",
+        "https://uber-clone-roan-xi.vercel.app/api/users/update-status",
         { username: rideData.username, status },
         {
           headers: {

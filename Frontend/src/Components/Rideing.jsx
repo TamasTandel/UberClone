@@ -12,15 +12,15 @@ const Rideing = ({ setRidingPanel, selectedRide }) => {
 
   const completeRideHandler = async () => {
     try {
-      await axios.put('http://localhost:4000/api/maps/updateRideStatus', 
+      await axios.put('https://uber-clone-roan-xi.vercel.app/api/maps/updateRideStatus', 
         { rideId: selectedRide._id, status: 'completed' }, 
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-      await axios.put('http://localhost:4000/api/captains/status', 
+      await axios.put('https://uber-clone-roan-xi.vercel.app/api/captains/status', 
         { status: 'inactive' }, 
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-      await axios.put('http://localhost:4000/api/users/update-status', 
+      await axios.put('https://uber-clone-roan-xi.vercel.app/api/users/update-status', 
         { username: selectedRide.username, status: 'Nothing' }, 
         { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
@@ -51,7 +51,7 @@ const Rideing = ({ setRidingPanel, selectedRide }) => {
             <div className="flex items-center gap-4">
               <img
                 className="h-10 w-10 object-cover rounded-full"
-                src={`http://localhost:4000/${selectedRide.captain.profileImage}`}
+                src={`https://uber-clone-roan-xi.vercel.app/${selectedRide.captain.profileImage}`}
                 alt="Captain"
               />
               <h4 className="text-lg font-bold">{selectedRide.captain.name || "Unknown User"}</h4>

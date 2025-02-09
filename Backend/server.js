@@ -8,12 +8,12 @@ const server = http.createServer(app);
 
 const io = socketIo(server, {
   cors: {
-    origin: "https://uber-clone-3.vercel.app", // Frontend URL
+    origin: "https://uber-clone-3.vercel.app",
     methods: ["GET", "POST"],
     credentials: true,
   },
 });
-const { confirmRide } = require('./controllers/maps.controller');  // Assuming you have a ride controller for confirming rides
+const { confirmRide } = require('./controllers/maps.controller');
 
 io.on("connection", (socket) => {
   console.log(`User connected: ${socket.id}`);

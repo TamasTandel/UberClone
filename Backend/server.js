@@ -8,7 +8,7 @@ const server = http.createServer(app);
 
 const io = socketIo(server, {
   cors: {
-    origin: "http://localhost:5173", // Frontend URL
+    origin: "https://uber-clone-3.vercel.app", // Frontend URL
     methods: ["GET", "POST"],
     credentials: true,
   },

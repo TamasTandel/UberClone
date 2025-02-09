@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const dotenv = require("dotenv");
-dotenv.config();  // Load environment variables from .env file
+dotenv.config();
 
 const express = require("express");
 const cors = require("cors");
@@ -12,20 +12,16 @@ const captainRoutes = require("./routes/captian.routes");
 const mapsRoutes = require('./routes/maps.routes');
 const path = require("path");
 const otpRoutes = require('./routes/otp.routes');
-const User = require('./models/user.model'); // Import the User model
+const User = require('./models/user.model'); 
 
-// Connect to the MongoDB database
 connectToDb();
 
 const app = express();
 
-// Serve static files from the uploads directory
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// app.use(cors());
-
 app.use(cors({
-  origin: "http://localhost:5173", // Frontend URL
+  origin: "https://uber-clone-3.vercel.app/",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
   allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
@@ -35,24 +31,20 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Log all incoming requests for debugging
 app.use((req, res, next) => {
     console.log(`[${req.method}] ${req.url}`);
     next();
 });
 
-// Default route (optional)
 app.get("/", (req, res) => {
     res.send("Hello, World!");
 });
 
-// API Routes
 app.use('/api', otpRoutes);
-app.use("/api/users", userRoutes);  // Use `/api/users` for user-related routes
-app.use("/api/captains", captainRoutes);  // Use `/api/captains` for captain-related routes
-app.use("/api/maps", mapsRoutes);  // Use `/api/maps` for maps-related routes (for storing locations)
+app.use("/api/users", userRoutes); 
+app.use("/api/captains", captainRoutes); 
+app.use("/api/maps", mapsRoutes); 
 
-// Error handling middleware
 app.use((err, req, res, next) => {
     console.error("Error:", err.message);
     res.status(500).json({ error: "Internal Server Error" });

@@ -23,6 +23,9 @@ const UserLogin = () => {
 
     const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/users/login`,userData);
 
+    console.log('VITE_BASE_URL:', import.meta.env.VITE_BASE_URL);
+    console.log('Full URL:', `${import.meta.env.VITE_BASE_URL}/api/users/login`);
+
     if(response.status === 200){
       const data = response.data
       setUser(data.user)

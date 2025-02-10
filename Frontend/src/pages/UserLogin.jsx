@@ -23,6 +23,7 @@ const UserLogin = () => {
 
     const response = await axios.post(`${process.env.VITE_BASE_URL}/api/users/login`,userData);
 
+    console.log('VITE_BASE_URL:', process.env.VITE_BASE_URL);
     // console.log('VITE_BASE_URL:', import.meta.env.VITE_BASE_URL);
     // console.log('Full URL:', `${import.meta.env.VITE_BASE_URL}/api/users/login`);
 

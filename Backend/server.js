@@ -1,32 +1,10 @@
 const http = require('http');
 const app = require('./app');
-const socketIo = require('socket.io');
 const port = process.env.PORT || 3000;
 require('dotenv').config();
-
-const server = http.createServer(app);
-
-const io = socketIo(server, {
-  cors: {
-    origin: "https://uber-clone-3.vercel.app",
-    methods: ["GET", "POST"],
-    credentials: true,
-  },
-});
 const { confirmRide } = require('./controllers/maps.controller');
 
-io.on("connection", (socket) => {
-  console.log(`User connected: ${socket.id}`);
-
-socket.on("rideRequest", (rideData) => {
-  console.log("Received ride request:", rideData);
-  setRideRequests((prevRequests) => [...prevRequests, rideData]);
-});
-
-  socket.on("disconnect", () => {
-    console.log(`User disconnected: ${socket.id}`);
-  });
-});
+const server = http.createServer(app);
 
 function generateUniqueId() {
   return `ride_${Date.now()}_${Math.floor(Math.random() * 10000)}`;

@@ -18,14 +18,13 @@ connectToDb();
 
 const app = express();
 
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
-
 app.use(cors({
   origin: "https://uber-clone-3.vercel.app",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
   allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization'
 }));
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

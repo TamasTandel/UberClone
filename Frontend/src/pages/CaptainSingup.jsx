@@ -39,7 +39,7 @@ const CaptainSignup = () => {
 
     try {
       const response = await axios.post(
-        `${import.meta.env.VITE_BASE_URL}/api/captains/register`,
+        `${process.env.VITE_BASE_URL}/api/captains/register`,
         formData,
         {
           headers: {

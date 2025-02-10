@@ -37,7 +37,7 @@ const submitHandler = async (e) => {
 
     // Send the request with headers for file upload
     const response = await axios.post(
-      `${import.meta.env.VITE_BASE_URL}/api/users/register`,
+      `${process.env.VITE_BASE_URL}/api/users/register`,
       formData,
       {
         headers: {

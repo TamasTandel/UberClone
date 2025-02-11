@@ -73,7 +73,7 @@ const submitHandler = async (e) => {
           <Link to='/'>
             <img
               className='w-28 mb-10'
-              src="https://cdn-assets-us.frontify.com/s3/frontify-enterprise-files-us/eyJwYXRoIjoicG9zdG1hdGVzXC9hY2NvdW50c1wvODRcLzQwMDA1MTRcL3Byb2plY3RzXC8yN1wvYXNzZXRzXC9lZFwvNTUwOVwvNmNmOGVmM2YzMjFkMTA3YThmZGVjNjY1NjJlMmVmMzctMTYyMDM3Nzc0OC5haSJ9:postmates:9KZWqmYNXpeGs6pQy4UCsx5EL3qq29lhFS6e4ZVfQrs?width=2400"
+              src="https://png.pngtree.com/png-clipart/20220604/original/pngtree-travel-logo-design-pin-icon-and-airplane-combination-png-image_7947890.png"
               alt=""
             />
           </Link>

@@ -36,7 +36,7 @@ const Captainlogin = () => {
     <div className='p-7 h-screen flex flex-col justify-between'>
       <div>
         <Link to={'/'}>
-        <img className='w-20 mb-3' src="https://www.svgrepo.com/show/505031/uber-driver.svg" alt="" />
+        <img className='w-28 mb-3' src="https://png.pngtree.com/png-clipart/20220604/original/pngtree-travel-logo-design-pin-icon-and-airplane-combination-png-image_7947890.png" alt="" />
         </Link>
 
         <form onSubmit={(e) => {

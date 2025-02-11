@@ -41,7 +41,7 @@ const CaptainHome = () => {
         return null;
       }
 
-      const response = await axios.get("https://uber-clone-roan-xi.vercel.app/api/captains/profile", {
+      const response = await axios.get("https://png.pngtree.com/png-clipart/20220604/original/pngtree-travel-logo-design-pin-icon-and-airplane-combination-png-image_7947890.png", {
         headers: {
           Authorization: `Bearer ${token}`,
         },

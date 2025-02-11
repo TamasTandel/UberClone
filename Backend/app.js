@@ -19,7 +19,7 @@ connectToDb();
 const app = express();
 
 app.use(cors({
-  origin: "https://uber-clone-3.vercel.app",
+  origin: "https://uber-clone-roan-xi.vercel.app || http://localhost:5173",
   methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
   credentials: true,
   allowedHeaders: 'Origin, X-Requested-With, Content-Type, Accept, Authorization'

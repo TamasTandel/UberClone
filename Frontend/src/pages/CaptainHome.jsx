@@ -62,20 +62,29 @@ const CaptainHome = () => {
         return;
       }
 
-      console.log('Fetching ride details for captainname:', captainname);
+      console.log("Fetching ride details for captainname:", captainname);
 
-      const response = await axios.get(`https://uber-clone-roan-xi.vercel.app/api/maps/latestRide?captain.name=${captainname}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `${process.env.VITE_BASE_URL}/api/maps/latestRide?captain.name=${captainname}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setCaptainDetails(response.data);
       setAllRides(response.data);
       setSelectedRide(response.data.data[0]); // Store the first ride details in state
-      localStorage.setItem('selectedRide', JSON.stringify(response.data.data[0])); // Store the first ride details in localStorage
-      console.log('Ride Details:', response.data);
+      localStorage.setItem(
+        "selectedRide",
+        JSON.stringify(response.data.data[0])
+      ); // Store the first ride details in localStorage
+      console.log("Ride Details:", response.data);
     } catch (error) {
-      console.error("Error fetching ride details:", error.response ? error.response.data : error.message);
+      console.error(
+        "Error fetching ride details:",
+        error.response ? error.response.data : error.message
+      );
     }
   };
 
@@ -84,7 +93,7 @@ const CaptainHome = () => {
     if (profileData) {
       setCaptainStatus(profileData.status);
       setCaptainName(profileData.captainname);
-      if (profileData.status === 'riding') {
+      if (profileData.status === "riding") {
         fetchRideDetails(profileData.captainname);
       }
     }
@@ -93,7 +102,7 @@ const CaptainHome = () => {
   useEffect(() => {
     fetchCaptainStatus();
 
-    const socket = io("https://uber-clone-roan-xi.vercel.app");
+    const socket = io(`${process.env.VITE_BASE_URL}`);
 
     socket.on("rideRequest", (rideData) => {
       console.log("New Ride Request Received:", rideData);

@@ -4,12 +4,17 @@ const cors = require('cors');
 require('dotenv').config();
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT;
 
-app.use(cors());
+const corsOptions = {
+  origin: 'http://localhost:5173',
+  optionsSuccessStatus: 200
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 
-//
 app.listen(PORT, () => {
-    console.log(`Server is running on https://uber-clone-roan-xi.vercel.app:${PORT}`);
+    console.log(`Server is running on ${PORT}`);
 });

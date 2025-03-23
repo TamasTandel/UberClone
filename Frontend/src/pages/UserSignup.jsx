@@ -33,9 +33,7 @@ const submitHandler = async (e) => {
     formData.append('mobile', mobile);
     formData.append('email', email);
     formData.append('password', password);
-    if (profileImage) formData.append('profileImage', profileImage); // Attach profile image if provided
-
-    // Send the request with headers for file upload
+    if (profileImage) formData.append("profileImage", profileImage); 
     const response = await axios.post(
       `${process.env.VITE_BASE_URL}/api/users/register`,
       formData,

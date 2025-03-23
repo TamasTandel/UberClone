@@ -80,21 +80,30 @@ const Home = () => {
         return;
       }
 
-      console.log('Fetching ride details for username:', username);
+      console.log("Fetching ride details for username:", username);
 
-      const response = await axios.get(`https://uber-clone-roan-xi.vercel.app/api/maps/latestRide?username=${username}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `${process.env.VITE_BASE_URL}/api/maps/latestRide?username=${username}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
       setCaptainDetails(response.data);
       setAllRides(response.data);
       setSelectedRide(response.data.data[0]);
-      localStorage.setItem('selectedRide', JSON.stringify(response.data.data[0]));
-      console.log('Ride Details:', response.data);
+      localStorage.setItem(
+        "selectedRide",
+        JSON.stringify(response.data.data[0])
+      );
+      console.log("Ride Details:", response.data);
     } catch (error) {
-      console.error("Error fetching ride details:", error.response ? error.response.data : error.message);
+      console.error(
+        "Error fetching ride details:",
+        error.response ? error.response.data : error.message
+      );
     }
   };
 
@@ -107,11 +116,14 @@ const Home = () => {
           return;
         }
 
-        const response = await axios.get("https://uber-clone-roan-xi.vercel.app/api/users/profile", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          `${process.env.VITE_BASE_URL}/api/users/profile`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
 
         setUserStatus(response.data.status);
         console.log("response.data", response.data);

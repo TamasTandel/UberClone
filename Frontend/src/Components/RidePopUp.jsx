@@ -4,18 +4,27 @@ import { io } from "socket.io-client";
 import MapComponent from "./MapComponent"; 
 
 // Connect to the backend socket server
-const socket = io("https://uber-clone-roan-xi.vercel.app");
+const socket = io("http://localhost:4000");
 
-const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) => {
+const RidePopUp = ({
+  setRidePopUpPanel,
+  setConfirmRidePopUpPanel,
+  onAccept,
+}) => {
   const [rides, setRides] = useState([]); // State for storing all rides
   const [currentRideIndex, setCurrentRideIndex] = useState(0); // Index to track current ride
 
   useEffect(() => {
     const fetchPendingRides = async () => {
       try {
-        const response = await axios.get("https://uber-clone-roan-xi.vercel.app/api/maps/pendingRides", {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        });
+        const response = await axios.get(
+          `${process.env.VITE_BASE_URL}/api/maps/pendingRides`,
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          }
+        );
         console.log("Pending ride data:", response.data.data); // Log the fetched data
         setRides(response.data.data);
       } catch (error) {
@@ -44,11 +53,14 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
         return null;
       }
 
-      const response = await axios.get("https://uber-clone-roan-xi.vercel.app/api/captains/profile", {
-        headers: {
-          Authorization: `Bearer ${token}`, // Pass token in headers
-        },
-      });
+      const response = await axios.get(
+        `${process.env.VITE_BASE_URL}/api/captains/profile`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`, // Pass token in headers
+          },
+        }
+      );
       console.log(response.data);
       return response.data; // Adjusted to match the expected data structure
     } catch (error) {
@@ -60,28 +72,42 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
   const handleCaptainAccept = async (username) => {
     console.log("Updating status for username:", username); // Log username
     try {
-      const response = await axios.put('https://uber-clone-roan-xi.vercel.app/api/users/update-status', {
-        username,
-        status: 'Waiting', // Status changes to "Waiting"
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      });
+      const response = await axios.put(
+        `${process.env.VITE_BASE_URL}/api/users/update-status`,
+        {
+          username,
+          status: "Waiting", // Status changes to "Waiting"
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       console.log(response.data.message);
     } catch (error) {
-      console.error('Error updating user status:', error.response?.data?.message || error.message);
+      console.error(
+        "Error updating user status:",
+        error.response?.data?.message || error.message
+      );
     }
   };
 
   const handleCaptainStatusUpdate = async () => {
     try {
-      const response = await axios.put('https://uber-clone-roan-xi.vercel.app/api/captains/status', {
-        status: 'active', // Update captain status to "active"
-      }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
-      });
+      const response = await axios.put(
+        `${process.env.VITE_BASE_URL}/api/captains/status`,
+        {
+          status: "active", // Update captain status to "active"
+        },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
+      );
       console.log(response.data.message);
     } catch (error) {
-      console.error('Error updating captain status:', error.response?.data?.message || error.message);
+      console.error(
+        "Error updating captain status:",
+        error.response?.data?.message || error.message
+      );
     }
   };
 
@@ -96,7 +122,7 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
       }
 
       await axios.post(
-        "https://uber-clone-roan-xi.vercel.app/api/maps/updateRideData",
+        `${process.env.VITE_BASE_URL}/api/maps/updateRideData`,
         {
           rideId: currentRide._id,
           status: "accepted",
@@ -107,7 +133,9 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
           vehicleType: captainData.vehicle.vehicleType,
           color: captainData.vehicle.color,
         },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
       );
       handleCaptainAccept(currentRide.username);
       handleCaptainStatusUpdate();
@@ -125,9 +153,11 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
     const currentRide = rides[currentRideIndex];
     try {
       await axios.put(
-        "https://uber-clone-roan-xi.vercel.app/api/maps/updateRideData",
+        `${process.env.VITE_BASE_URL}/api/maps/updateRideData`,
         { rideId: currentRide._id, status: "pending" },
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
       );
 
       setCurrentRideIndex((prevIndex) => prevIndex + 1);
@@ -144,7 +174,7 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
   }
 
   const currentRide = rides[currentRideIndex];
-  
+
   return (
     <div className="bg-white z-50 p-5">
       <h5
@@ -162,33 +192,52 @@ const RidePopUp = ({ setRidePopUpPanel, setConfirmRidePopUpPanel, onAccept }) =>
             <div className="flex items-center gap-4">
               <img
                 className="h-10 w-10 object-cover rounded-full"
-                src={`https://uber-clone-roan-xi.vercel.app/${rides[currentRideIndex]?.profileImage}` || "https://images.unsplash.com/photo-1595152772835-219674b2a8a6"}
+                src={
+                  `${process.env.VITE_BASE_URL}/${rides[currentRideIndex]?.profileImage}` ||
+                  "https://images.unsplash.com/photo-1595152772835-219674b2a8a6"
+                }
                 alt=""
               />
-              <h4 className="text-lg font-bold">{rides[currentRideIndex]?.username || "Unknown User"}</h4>
+              <h4 className="text-lg font-bold">
+                {rides[currentRideIndex]?.username || "Unknown User"}
+              </h4>
             </div>
-            <h5 className="text-lg font-bold mr-3">{rides[currentRideIndex]?.distance || "N/A"} km</h5>
+            <h5 className="text-lg font-bold mr-3">
+              {rides[currentRideIndex]?.distance || "N/A"} km
+            </h5>
           </div>
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-5 p-2 border-b-2">
               <i className="ri-map-pin-user-fill text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">{rides[currentRideIndex]?.pickup?.name || "Not Provided"}</h3>
-                <div className="text-sm text-gray-500">{rides[currentRideIndex]?.pickup?.address || "Pickup location"}</div>
+                <h3 className="text-lg font-medium">
+                  {rides[currentRideIndex]?.pickup?.name || "Not Provided"}
+                </h3>
+                <div className="text-sm text-gray-500">
+                  {rides[currentRideIndex]?.pickup?.address ||
+                    "Pickup location"}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2 border-b-2">
               <i className="ri-map-pin-2-fill text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">{rides[currentRideIndex]?.destination?.name || "Not Provided"}</h3>
-                <div className="text-sm text-gray-500">{rides[currentRideIndex]?.destination?.address || "Destination location"}</div>
+                <h3 className="text-lg font-medium">
+                  {rides[currentRideIndex]?.destination?.name || "Not Provided"}
+                </h3>
+                <div className="text-sm text-gray-500">
+                  {rides[currentRideIndex]?.destination?.address ||
+                    "Destination location"}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2">
               <i className="ri-currency-line text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">${rides[currentRideIndex]?.vehicle?.fee || "0.00"}</h3>
+                <h3 className="text-lg font-medium">
+                  ${rides[currentRideIndex]?.vehicle?.fee || "0.00"}
+                </h3>
                 <div className="text-sm text-gray-500">Cash</div>
               </div>
             </div>

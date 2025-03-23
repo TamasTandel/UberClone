@@ -14,7 +14,7 @@ const LookingForDriver = ({ setVehicleFound }) => {
   const updateRideStatus = async (userId, status) => {
     try {
       const response = await axios.put(
-        "https://uber-clone-roan-xi.vercel.app/api/maps/updateStatus",
+        `${process.env.VITE_BASE_URL}/api/maps/updateStatus`,
         { userId, status },
         {
           headers: {
@@ -29,14 +29,18 @@ const LookingForDriver = ({ setVehicleFound }) => {
       }
     } catch (error) {
       console.error("Error updating ride status:", error);
-      alert(`An error occurred while updating the ride status: ${error.response?.data?.message || error.message}`);
+      alert(
+        `An error occurred while updating the ride status: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     }
   };
 
   const updateUserStatus = async (status) => {
     try {
       const response = await axios.put(
-        "https://uber-clone-roan-xi.vercel.app/api/users/update-status",
+        `${process.env.VITE_BASE_URL}/api/users/update-status`,
         { username: rideData.username, status },
         {
           headers: {
@@ -51,7 +55,11 @@ const LookingForDriver = ({ setVehicleFound }) => {
       }
     } catch (error) {
       console.error("Error updating user status:", error);
-      alert(`An error occurred while updating the user status: ${error.response?.data?.message || error.message}`);
+      alert(
+        `An error occurred while updating the user status: ${
+          error.response?.data?.message || error.message
+        }`
+      );
     }
   };
 

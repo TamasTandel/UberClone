@@ -17,7 +17,10 @@ const Menu = ({ onClose, allRides }) => {
 
   return (
     <div className="fixed inset-0 bg-white z-50 p-5 overflow-y-auto">
-      <button onClick={onClose} className="text-4xl font-bold mb-5 top-3 right-3 fixed">
+      <button
+        onClick={onClose}
+        className="text-4xl font-bold mb-5 top-3 right-3 fixed"
+      >
         <i className="ri-close-fill"></i>
       </button>
       <h2 className="text-2xl font-bold mb-5">All Rides</h2>
@@ -27,27 +30,39 @@ const Menu = ({ onClose, allRides }) => {
             <div className="flex items-center gap-4">
               <img
                 className="h-10 w-10 object-cover rounded-full"
-                src={`https://uber-clone-roan-xi.vercel.app/${ride.captain.profileImage}`}
+                src={`${process.env.VITE_BASE_URL}/${ride.captain.profileImage}`}
                 alt="Captain"
               />
-              <h4 className="text-lg font-bold">{ride.captain.name || "Unknown User"}</h4>
+              <h4 className="text-lg font-bold">
+                {ride.captain.name || "Unknown User"}
+              </h4>
             </div>
-            <h5 className="text-lg font-bold mr-3">{ride.distance || "N/A"} km</h5>
+            <h5 className="text-lg font-bold mr-3">
+              {ride.distance || "N/A"} km
+            </h5>
           </div>
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-5 p-2 border-b-2">
               <i className="ri-map-pin-user-fill text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">{ride.pickup?.name || "Not Provided"}</h3>
-                <div className="text-sm text-gray-500">{ride.pickup?.address || "Pickup location"}</div>
+                <h3 className="text-lg font-medium">
+                  {ride.pickup?.name || "Not Provided"}
+                </h3>
+                <div className="text-sm text-gray-500">
+                  {ride.pickup?.address || "Pickup location"}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2 border-b-2">
               <i className="ri-map-pin-2-fill text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">{ride.destination?.name || "Not Provided"}</h3>
-                <div className="text-sm text-gray-500">{ride.destination?.address || "Destination location"}</div>
+                <h3 className="text-lg font-medium">
+                  {ride.destination?.name || "Not Provided"}
+                </h3>
+                <div className="text-sm text-gray-500">
+                  {ride.destination?.address || "Destination location"}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2 border-b-2">
@@ -60,28 +75,38 @@ const Menu = ({ onClose, allRides }) => {
             <div className="flex items-center gap-5 p-2 border-b-2">
               <i className="ri-car-line text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">{ride.captain.type || "N/A"}</h3>
+                <h3 className="text-lg font-medium">
+                  {ride.captain.type || "N/A"}
+                </h3>
                 <div className="text-sm text-gray-500">Vehicle Type</div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2 border-b-2">
               <i className="ri-car-line text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">{ride.captain.plateNumber || "N/A"}</h3>
-                <div className="text-sm text-gray-500">Vehicle Plate Number</div>
+                <h3 className="text-lg font-medium">
+                  {ride.captain.plateNumber || "N/A"}
+                </h3>
+                <div className="text-sm text-gray-500">
+                  Vehicle Plate Number
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2 border-b-2">
               <i className="ri-calendar-check-line text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">{new Date(ride.confirmedAt).toLocaleString() || "N/A"}</h3>
+                <h3 className="text-lg font-medium">
+                  {new Date(ride.confirmedAt).toLocaleString() || "N/A"}
+                </h3>
                 <div className="text-sm text-gray-500">Confirmed At</div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2">
               <i className="ri-currency-line text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">${ride.vehicle?.fee || "0.00"}</h3>
+                <h3 className="text-lg font-medium">
+                  ${ride.vehicle?.fee || "0.00"}
+                </h3>
                 <div className="text-sm text-gray-500">Fee</div>
               </div>
             </div>

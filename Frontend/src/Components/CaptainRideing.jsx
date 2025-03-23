@@ -13,21 +13,30 @@ const CaptainRideing = ({ setRidingPanel, selectedRide }) => {
   const completeRideHandler = async () => {
     try {
       // Update ride status to completed
-      await axios.put('https://uber-clone-roan-xi.vercel.app/api/maps/updateRideStatus', 
-        { rideId: selectedRide._id, status: 'completed' }, 
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      await axios.put(
+        `${process.env.VITE_BASE_URL}/api/maps/updateRideStatus`,
+        { rideId: selectedRide._id, status: "completed" },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
       );
 
       // Update captain status to inactive
-      await axios.put('https://uber-clone-roan-xi.vercel.app/api/captains/status', 
-        { status: 'inactive' }, 
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      await axios.put(
+        `${process.env.VITE_BASE_URL}/api/captains/status`,
+        { status: "inactive" },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
       );
 
       // Update user status to Nothing
-      await axios.put('https://uber-clone-roan-xi.vercel.app/api/users/update-status', 
-        { username: selectedRide.username, status: 'Nothing' }, 
-        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      await axios.put(
+        `${process.env.VITE_BASE_URL}/api/users/update-status`,
+        { username: selectedRide.username, status: "Nothing" },
+        {
+          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
+        }
       );
 
       setRideStatus('completed');
@@ -56,33 +65,47 @@ const CaptainRideing = ({ setRidingPanel, selectedRide }) => {
             <div className="flex items-center gap-4">
               <img
                 className="h-10 w-10 object-cover rounded-full"
-                src={`https://uber-clone-roan-xi.vercel.app/${selectedRide.profileImage}`}
+                src={`${process.env.VITE_BASE_URL}/${selectedRide.profileImage}`}
                 alt="Captain"
               />
-              <h4 className="text-lg font-bold">{selectedRide.username || "Unknown User"}</h4>
+              <h4 className="text-lg font-bold">
+                {selectedRide.username || "Unknown User"}
+              </h4>
             </div>
-            <h5 className="text-lg font-bold mr-3">{selectedRide.distance || "N/A"} km</h5>
+            <h5 className="text-lg font-bold mr-3">
+              {selectedRide.distance || "N/A"} km
+            </h5>
           </div>
 
           <div className="flex flex-col gap-2">
             <div className="flex items-center gap-5 p-2 border-b-2">
               <i className="ri-map-pin-user-fill text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">{selectedRide.pickup?.name || "Not Provided"}</h3>
-                <div className="text-sm text-gray-500">{selectedRide.pickup?.address || "Pickup location"}</div>
+                <h3 className="text-lg font-medium">
+                  {selectedRide.pickup?.name || "Not Provided"}
+                </h3>
+                <div className="text-sm text-gray-500">
+                  {selectedRide.pickup?.address || "Pickup location"}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2 border-b-2">
               <i className="ri-map-pin-2-fill text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">{selectedRide.destination?.name || "Not Provided"}</h3>
-                <div className="text-sm text-gray-500">{selectedRide.destination?.address || "Destination location"}</div>
+                <h3 className="text-lg font-medium">
+                  {selectedRide.destination?.name || "Not Provided"}
+                </h3>
+                <div className="text-sm text-gray-500">
+                  {selectedRide.destination?.address || "Destination location"}
+                </div>
               </div>
             </div>
             <div className="flex items-center gap-5 p-2">
               <i className="ri-currency-line text-xl"></i>
               <div>
-                <h3 className="text-lg font-medium">${selectedRide.vehicle?.fee || "0.00"}</h3>
+                <h3 className="text-lg font-medium">
+                  ${selectedRide.vehicle?.fee || "0.00"}
+                </h3>
                 <div className="text-sm text-gray-500">Cash</div>
               </div>
             </div>
